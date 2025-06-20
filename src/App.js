@@ -35,7 +35,7 @@ function App() {
   const [users, setUsers] = useState([]);
   const [adding, setAdding] = useState(false);
   const [waitingForCard, setWaitingForCard] = useState(false);
-  const [sessions, setSessions] = useState();
+  const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [openSessionDetail, setOpenSessionDetail] = useState(false);
   const [sessionModal, setSessionModal] = useState(false);
@@ -442,7 +442,9 @@ function App() {
                           title: "UID",
                           dataIndex: "key",
                           render: (text) => (
-                            <span style={{ fontFamily: "monospace" }}>{text}</span>
+                            <span style={{ fontFamily: "monospace" }}>
+                              {text}
+                            </span>
                           ),
                         },
                         {
@@ -457,8 +459,8 @@ function App() {
                                 {letter}
                               </span>
                             );
-                          }
-                        }
+                          },
+                        },
                       ]}
                       pagination={false}
                       size="small"
@@ -561,11 +563,17 @@ function App() {
           <Table
             style={{ marginTop: 24 }}
             dataSource={
-              [...sessions].sort((a, b) => {
-                if (a.status === 'active' && b.status !== 'active') return -1;
-                if (a.status !== 'active' && b.status === 'active') return 1;
-                return 0;
-              })
+              // sort sessions by status
+              sessions
+                ?.slice()
+                ?.sort((a, b) => {
+                  if (a.status === "active" && b.status !== "active") return -1;
+                  if (b.status === "active" && a.status !== "active") return 1;
+                  return new Date(b.start_time) - new Date(a.start_time);
+                })
+                ?.map((session) => ({
+                  ...session,
+                }))
             }
             columns={[
               { title: "Session ID", dataIndex: "sessionId" },
@@ -686,7 +694,9 @@ function App() {
                             message.success("User removed successfully");
                           })
                           .catch((error) => {
-                            message.error("Failed to remove user: " + error.message);
+                            message.error(
+                              "Failed to remove user: " + error.message
+                            );
                           });
                       }
                     }}
@@ -807,7 +817,6 @@ function App() {
                 columns={[
                   { title: "Candidate", dataIndex: "name" },
                   { title: "Votes", dataIndex: "votes" },
-                  
                 ]}
                 pagination={false}
                 size="small"
