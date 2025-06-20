@@ -1,0 +1,96 @@
+{
+  "candidates": {
+    "34691605": {
+      "name": "Android"
+    },
+    "043BDCFD730000": {
+      "name": "Hoàng Minh Tú"
+    },
+    "35AC6FF2": {
+      "name": "Tu Hoang"
+    }
+  },
+  "config": {
+    "voting_active": false
+  },
+  "mode": {
+    "create_new": true
+  },
+  "sessions": {
+    "session_1750235810721": {
+      "candidates": {
+        "34691605": true,
+        "043BDCFD730000": true,
+        "35AC6FF2": true
+      },
+      "duration": 1200,
+      "start_time": 1750235810
+    },
+    "session_1750236053586": {
+      "candidates": {
+        "34691605": true,
+        "043BDCFD730000": true
+      },
+      "duration": 1800,
+      "start_time": 1750236053
+    },
+    "session_1750236866105": {
+      "candidates": {
+        "34691605": true,
+        "043BDCFD730000": true
+      },
+      "duration": 1800,
+      "start_time": 1750236866
+    },
+    "session_1750237789376": {
+      "candidates": {
+        "34691605": true,
+        "043BDCFD730000": true
+      },
+      "duration": 1800,
+      "start_time": 1750237789
+    },
+    "session_1750238634348": {
+      "candidates": {
+        "34691605": true,
+        "043BDCFD730000": true,
+        "35AC6FF2": true
+      },
+      "duration": 300,
+      "start_time": 1750238634
+    },
+    "session_1750238851313": {
+      "candidates": {
+        "34691605": true,
+        "043BDCFD730000": true,
+        "35AC6FF2": true
+      },
+      "duration": 300,
+      "start_time": 1750238851
+    },
+    "session_1750239615237": {
+      "candidates": {
+        "34691605": true,
+        "043BDCFD730000": true,
+        "35AC6FF2": true
+      },
+      "duration": 300,
+      "start_time": 1750239615
+    }
+  },
+  "votes": {
+    "session_1750237789376": {
+      "25E545F2": "34691605",
+      "35AC6FF2": "043BDCFD730000",
+      "E6577E9F": "34691605"
+    },
+    "session_1750238634348": {
+      "25E545F2": "34691605",
+      "35AC6FF2": "043BDCFD730000",
+      "E6577E9F": "35AC6FF2"
+    },
+    "session_1750238851313": {
+      "25E545F2": "34691605"
+    }
+  }
+}
