@@ -26,7 +26,7 @@ export const FirebaseService = {
   /**
    * Listen to sessions data
    */
-  async listenToSessions(callback) {
+  listenToSessions(callback) {
     const sessionsRef = ref(db, FIREBASE_PATHS.SESSIONS);
     onValue(sessionsRef, async (snapshot) => {
       const data = snapshot.val() || {};

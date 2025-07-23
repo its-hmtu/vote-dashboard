@@ -116,12 +116,19 @@ export function useVotingSession(users) {
       timerRef.current = setInterval(() => {
         setSessionTimeLeft((prev) => prev - 1);
       }, 1000);
-      return () => clearInterval(timerRef.current);
-    } else if (sessionTimeLeft === 0 && votingActive && currentSessionId) {
+    } else {
+      clearInterval(timerRef.current);
+    }
+
+    return () => clearInterval(timerRef.current);
+  }, [votingActive, sessionTimeLeft]);
+
+  // Handle session timeout
+  useEffect(() => {
+    if (sessionTimeLeft === 0 && votingActive && currentSessionId) {
       stopVotingSession();
     }
-    return () => clearInterval(timerRef.current);
-  }, [votingActive, sessionTimeLeft, currentSessionId, stopVotingSession]);
+  }, [sessionTimeLeft, votingActive, currentSessionId, stopVotingSession]);
 
   // Listen to session data and votes when active
   useEffect(() => {
