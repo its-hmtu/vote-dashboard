@@ -14,8 +14,8 @@ function SessionControl({
   const [sessionModal, setSessionModal] = React.useState(false);
   const [form] = Form.useForm();
 
-  const handleStartSession = async (duration, candidates) => {
-    const success = await onStartSession(duration, candidates);
+  const handleStartSession = async (sessionConfig) => {
+    const success = await onStartSession(sessionConfig);
     if (success) {
       setSessionModal(false);
       form.resetFields();

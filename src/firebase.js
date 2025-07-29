@@ -1,6 +1,7 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, push, onValue, get, off, remove } from "firebase/database";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -16,5 +17,6 @@ console.log("Firebase config:", firebaseConfig);
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
 
-export { db, ref, set, push, onValue, get, off, remove };
+export { db, ref, set, push, onValue, get, off, remove, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged };

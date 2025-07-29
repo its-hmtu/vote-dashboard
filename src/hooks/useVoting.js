@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { message } from "antd";
 import { FirebaseService } from "../services/firebaseService";
 import { getNotVotedUsers, calculateCandidateVotes } from "../utils/formatters";
-import { MESSAGES } from "../constants";
+import { MESSAGES, VOTE_TYPES } from "../constants";
 
 /**
  * Custom hook for managing users data
@@ -137,8 +137,13 @@ export function useVotingSession(users) {
     const unsubscribeSession = FirebaseService.listenToSessionData(
       currentSessionId,
       (session) => {
-        const candidateUIDs = Object.keys(session.candidates || {});
-        setSessionCandidates(candidateUIDs);
+        if (session.voteType === VOTE_TYPES.ELECTION) {
+          const candidateUIDs = Object.keys(session.candidates || {});
+          setSessionCandidates(candidateUIDs);
+        } else {
+          // For questions, we don't have candidates
+          setSessionCandidates([]);
+        }
       }
     );
 
@@ -148,7 +153,7 @@ export function useVotingSession(users) {
         setSessionVoteCount(Object.keys(votes).length);
         setCandidateVotes(calculateCandidateVotes(votes));
         
-        // Calculate not voted users
+        // Calculate not voted users (only for election type)
         const notVotedUsers = getNotVotedUsers(users, sessionCandidates, votes);
         setNotVotedUserCount(notVotedUsers.length);
         setNotVotedUserList(notVotedUsers);
@@ -161,18 +166,28 @@ export function useVotingSession(users) {
     };
   }, [votingActive, currentSessionId, users, sessionCandidates]);
 
-  const startVotingSession = async (duration, candidates) => {
-    if (!candidates || candidates.length < 2) {
+  const startVotingSession = async (sessionConfig) => {
+    const { duration, voteType, candidates, questions } = sessionConfig;
+
+    // Validate based on vote type
+    if (voteType === VOTE_TYPES.ELECTION && (!candidates || candidates.length < 2)) {
       message.error(MESSAGES.ERROR.MIN_CANDIDATES);
       return false;
     }
 
+    if (voteType === VOTE_TYPES.QUESTION && (!questions || questions.length < 1)) {
+      message.error("At least one question is required");
+      return false;
+    }
+
     try {
-      const result = await FirebaseService.startVotingSession(duration, candidates);
+      const result = await FirebaseService.startVotingSession(sessionConfig);
       setSessionTimeLeft(result.duration);
       setVotingActive(true);
       setCurrentSessionId(result.sessionId);
-      message.success(`${MESSAGES.SUCCESS.SESSION_STARTED} for ${duration} minutes`);
+      
+      const typeText = voteType === VOTE_TYPES.ELECTION ? "election" : "question";
+      message.success(`${MESSAGES.SUCCESS.SESSION_STARTED} (${typeText}) for ${duration} minutes`);
       return true;
     } catch (error) {
       message.error(`${MESSAGES.ERROR.SESSION_START_FAILED}: ${error.message}`);

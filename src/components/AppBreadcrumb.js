@@ -4,13 +4,13 @@ import classNames from "classnames";
 import { Breadcrumb } from "antd";
 import { PATH } from "../constants/PATH";
 
-const nonClickableSegmentNames = ['create', 'update', 'edit', 'detail'];
+const nonClickableSegmentNames = ["create", "update", "edit", "detail"];
 
 const formatSegment = (segment) =>
   segment
-    .split('-')
+    .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .join(" ");
 
 const AppBreadcrumb = () => {
   const { pathname } = useLocation();
@@ -25,30 +25,44 @@ const AppBreadcrumb = () => {
   };
 
   const buildItem = (key, name, href, isLast, isDynamic) => {
-    const label = isDynamic ? 'Detail' : formatSegment(name);
+    const label = isDynamic ? "Detail" : formatSegment(name);
     const isClickable =
-      !isLast && !isDynamic && !nonClickableSegmentNames.includes(name.toLowerCase());
+      !isLast &&
+      !isDynamic &&
+      !nonClickableSegmentNames.includes(name.toLowerCase());
 
     return {
       key,
       title: <span className="flex items-center gap-1">{label}</span>,
       href,
       className: classNames(
-        isClickable ? 'cursor-pointer hover:text-primary' : 'pointer-events-none',
-        isLast && '!text-black'
+        isClickable
+          ? "cursor-pointer hover:text-primary"
+          : "pointer-events-none",
+        isLast && "!text-black"
       ),
       onClick: (e) => onNavigate(e, href, isClickable),
     };
   };
 
   const breadcrumbItems = [
-    buildItem('dashboard', 'Dashboard', PATH.HOME, false, false),
     ...pathUrl.map((item, index) =>
-      buildItem(index, item.name, item.url, index === pathUrl.length - 1, item.isDynamicSegment)
+      buildItem(
+        index,
+        item.name,
+        item.url,
+        index === pathUrl.length - 1,
+        item.isDynamicSegment
+      )
     ),
   ];
 
-  return <Breadcrumb className="app-breadcrumb flex items-center mt-16" items={breadcrumbItems} />;
+  return (
+    <Breadcrumb
+      className="app-breadcrumb flex items-center mt-16"
+      items={breadcrumbItems}
+    />
+  );
 };
 
 export default AppBreadcrumb;

@@ -1,6 +1,6 @@
 import { db, ref, set, onValue, get, off, remove } from "../firebase";
 import moment from "moment";
-import { FIREBASE_PATHS } from "../constants";
+import { FIREBASE_PATHS, VOTE_TYPES } from "../constants";
 
 /**
  * Firebase service functions for voting operations
@@ -117,20 +117,34 @@ export const FirebaseService = {
   /**
    * Start voting session
    */
-  async startVotingSession(duration, candidates) {
+  async startVotingSession(sessionConfig) {
+    const { duration, voteType, candidates, questions } = sessionConfig;
     const sessionId = `session_${Date.now()}`;
     const startTime = Math.floor(Date.now() / 1000);
     const durationInSeconds = duration * 60;
 
-    await set(ref(db, `${FIREBASE_PATHS.SESSIONS}/${sessionId}`), {
+    const sessionData = {
       status: "active",
       start_time: startTime,
       duration: durationInSeconds,
-      candidates: candidates.reduce((obj, uid) => {
+      voteType,
+    };
+
+    // Add vote-type specific data
+    if (voteType === VOTE_TYPES.ELECTION) {
+      sessionData.candidates = candidates.reduce((obj, uid) => {
         obj[uid] = true;
         return obj;
-      }, {}),
-    });
+      }, {});
+    } else if (voteType === VOTE_TYPES.QUESTION) {
+      sessionData.questions = questions.map((q, index) => ({
+        id: `q_${index}`,
+        text: q.text,
+        order: index,
+      }));
+    }
+
+    await set(ref(db, `${FIREBASE_PATHS.SESSIONS}/${sessionId}`), sessionData);
 
     await set(ref(db, FIREBASE_PATHS.CONFIG), {
       current_session: sessionId,

@@ -2,12 +2,32 @@
  * Application constants
  */
 
+// Vote types
+export const VOTE_TYPES = {
+  ELECTION: 'election',
+  QUESTION: 'question',
+};
+
 // Session configuration
 export const SESSION_CONFIG = {
   MIN_DURATION: 1, // minutes
   MAX_DURATION: 120, // minutes
   MIN_CANDIDATES: 2,
   MAX_CANDIDATES: 4,
+  MIN_QUESTIONS: 1,
+  MAX_QUESTIONS: 10,
+  TYPES: {
+    [VOTE_TYPES.ELECTION]: {
+      MIN_CANDIDATES: 2,
+      MAX_CANDIDATES: 4,
+      CHOICES: ['A', 'B', 'C', 'D'], // Candidate choices
+    },
+    [VOTE_TYPES.QUESTION]: {
+      MIN_QUESTIONS: 1,
+      MAX_QUESTIONS: 10,
+      CHOICES: ['YES', 'NO'], // Yes/No questions
+    },
+  },
 };
 
 // Vote choices
