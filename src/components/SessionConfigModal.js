@@ -77,6 +77,7 @@ function SessionConfigModal({
       onOk={() => form.submit()}
       onCancel={handleCancel}
       width={700}
+      maskClosable={false}
     >
       <Form form={form} onFinish={handleFinish} layout="vertical">
         <Form.Item

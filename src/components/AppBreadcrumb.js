@@ -2,7 +2,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getPathUrl } from "../utils";
 import classNames from "classnames";
 import { Breadcrumb } from "antd";
-import { PATH } from "../constants/PATH";
 
 const nonClickableSegmentNames = ["create", "update", "edit", "detail"];
 

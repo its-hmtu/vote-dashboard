@@ -10,6 +10,7 @@ function SessionControl({
   onStartSession,
   onStopSession,
   users,
+  buttonOnly = false,
 }) {
   const [sessionModal, setSessionModal] = React.useState(false);
   const [form] = Form.useForm();
@@ -32,40 +33,55 @@ function SessionControl({
 
   return (
     <>
-      <div style={{ marginBottom: 24 }}>
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          <div style={{ textAlign: "center" }}>
-            {!votingActive ? (
-              <Space direction="vertical" align="center">
+      {buttonOnly ? (
+        // Simple button mode for header
+        !votingActive ? (
+          <Button
+            type="primary"
+            icon={<PlayCircleOutlined />}
+            onClick={handleOpenModal}
+            disabled={users.length < 2}
+          >
+            Start Session
+          </Button>
+        ) : null
+      ) : (
+        // Full control panel mode
+        <div style={{ marginBottom: 24 }}>
+          <Space direction="vertical" size="large" style={{ width: "100%" }}>
+            <div style={{ textAlign: "center" }}>
+              {!votingActive ? (
+                <Space direction="vertical" align="center">
+                  <Button
+                    type="primary"
+                    icon={<PlayCircleOutlined />}
+                    onClick={handleOpenModal}
+                    size="large"
+                    disabled={users.length < 2}
+                  >
+                    Start Voting Session
+                  </Button>
+                  {users.length < 2 && (
+                    <Text type="secondary">
+                      You need at least 2 users to start a voting session
+                    </Text>
+                  )}
+                </Space>
+              ) : (
                 <Button
                   type="primary"
-                  icon={<PlayCircleOutlined />}
-                  onClick={handleOpenModal}
+                  danger
+                  icon={<StopOutlined />}
+                  onClick={onStopSession}
                   size="large"
-                  disabled={users.length < 2}
                 >
-                  Start Voting Session
+                  Stop Voting Session
                 </Button>
-                {users.length < 2 && (
-                  <Text type="secondary">
-                    You need at least 2 users to start a voting session
-                  </Text>
-                )}
-              </Space>
-            ) : (
-              <Button
-                type="primary"
-                danger
-                icon={<StopOutlined />}
-                onClick={onStopSession}
-                size="large"
-              >
-                Stop Voting Session
-              </Button>
-            )}
-          </div>
-        </Space>
-      </div>
+              )}
+            </div>
+          </Space>
+        </div>
+      )}
 
       <SessionConfigModal
         open={sessionModal}

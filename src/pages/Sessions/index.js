@@ -7,14 +7,14 @@ import {
 import {
   useSessions,
   useSessionDetails,
-  useUsers,
 } from "../../hooks/useVoting";
+import { useVotingContext } from "../../contexts/VotingContext";
 
 const { Title } = Typography;
 
 function Sessions() {
   const { sessions, removeSession } = useSessions();
-  const { users } = useUsers();
+  const { users } = useVotingContext();
   const {
     selectedSession,
     openSessionDetail,

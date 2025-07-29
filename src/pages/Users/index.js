@@ -1,12 +1,12 @@
 import React from "react";
 import { Typography } from "antd";
 import { UserManagement } from "../../components";
-import { useUsers } from "../../hooks/useVoting";
+import { useVotingContext } from "../../contexts/VotingContext";
 
 const { Title } = Typography;
 
 function Users() {
-  const { users, addUser, removeUser } = useUsers();
+  const { users, addUser, removeUser } = useVotingContext();
 
   return (
     <div>

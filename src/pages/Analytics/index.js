@@ -1,12 +1,13 @@
 import React from "react";
 import { Typography, Card, Row, Col, Statistic } from "antd";
-import { useSessions, useUsers } from "../../hooks/useVoting";
+import { useSessions } from "../../hooks/useVoting";
+import { useVotingContext } from "../../contexts/VotingContext";
 
 const { Title } = Typography;
 
 function Analytics() {
   const { sessions } = useSessions();
-  const { users } = useUsers();
+  const { users } = useVotingContext();
 
   // Calculate analytics data
   const totalSessions = sessions?.length || 0;

@@ -1,21 +1,53 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { message } from "antd";
 import { FirebaseService } from "../services/firebaseService";
 import { getNotVotedUsers, calculateCandidateVotes } from "../utils/formatters";
 import { MESSAGES, VOTE_TYPES } from "../constants";
 
-/**
- * Custom hook for managing users data
- * @deprecated Use useVotingContext instead for better state persistence across routes
- */
-export function useUsers() {
+const VotingContext = createContext();
+
+export const useVotingContext = () => {
+  const context = useContext(VotingContext);
+  if (!context) {
+    throw new Error("useVotingContext must be used within a VotingProvider");
+  }
+  return context;
+};
+
+export const VotingProvider = ({ children }) => {
+  const [votingActive, setVotingActive] = useState(false);
+  const [sessionTimeLeft, setSessionTimeLeft] = useState(0);
+  const [sessionVoteCount, setSessionVoteCount] = useState(0);
+  const [sessionCandidates, setSessionCandidates] = useState([]);
+  const [candidateVotes, setCandidateVotes] = useState({});
+  const [notVotedUserCount, setNotVotedUserCount] = useState(0);
+  const [notVotedUserList, setNotVotedUserList] = useState([]);
+  const [currentSessionId, setCurrentSessionId] = useState(null);
+  const [currentSessionType, setCurrentSessionType] = useState(null);
   const [users, setUsers] = useState([]);
 
+  const timerRef = useRef(null);
+  const sessionListenerRef = useRef(null);
+  const votesListenerRef = useRef(null);
+  const usersRef = useRef([]);
+  const sessionCandidatesRef = useRef([]);
+
+  // Keep refs updated
+  useEffect(() => {
+    usersRef.current = users;
+  }, [users]);
+
+  useEffect(() => {
+    sessionCandidatesRef.current = sessionCandidates;
+  }, [sessionCandidates]);
+
+  // Listen to users data
   useEffect(() => {
     const unsubscribe = FirebaseService.listenToUsers(setUsers);
     return unsubscribe;
   }, []);
 
+  // User management functions
   const addUser = async (uid, name) => {
     try {
       await FirebaseService.createUser(uid, name);
@@ -34,48 +66,6 @@ export function useUsers() {
     }
   };
 
-  return { users, addUser, removeUser };
-}
-
-/**
- * Custom hook for managing sessions
- */
-export function useSessions() {
-  const [sessions, setSessions] = useState([]);
-
-  useEffect(() => {
-    const unsubscribe = FirebaseService.listenToSessions(setSessions);
-    return unsubscribe;
-  }, []);
-
-  const removeSession = async (sessionId) => {
-    try {
-      await FirebaseService.removeSession(sessionId);
-      message.success(MESSAGES.SUCCESS.SESSION_REMOVED);
-    } catch (error) {
-      message.error(`${MESSAGES.ERROR.SESSION_REMOVE_FAILED}: ${error.message}`);
-    }
-  };
-
-  return { sessions, removeSession };
-}
-
-/**
- * Custom hook for managing voting sessions
- * @deprecated Use useVotingContext instead for better state persistence across routes
- */
-export function useVotingSession(users) {
-  const [votingActive, setVotingActive] = useState(false);
-  const [sessionTimeLeft, setSessionTimeLeft] = useState(0);
-  const [sessionVoteCount, setSessionVoteCount] = useState(0);
-  const [sessionCandidates, setSessionCandidates] = useState([]);
-  const [candidateVotes, setCandidateVotes] = useState({});
-  const [notVotedUserCount, setNotVotedUserCount] = useState(0);
-  const [notVotedUserList, setNotVotedUserList] = useState([]);
-  const [currentSessionId, setCurrentSessionId] = useState(null);
-
-  const timerRef = useRef(null);
-
   // Listen to current session
   useEffect(() => {
     const unsubscribe = FirebaseService.listenToCurrentSession((sessionInfo) => {
@@ -84,11 +74,13 @@ export function useVotingSession(users) {
         setCurrentSessionId(sessionInfo.sessionId);
         if (sessionInfo.sessionData) {
           setSessionTimeLeft(sessionInfo.sessionData.duration);
+          setCurrentSessionType(sessionInfo.sessionData.voteType);
         }
       } else {
         setVotingActive(false);
         setSessionTimeLeft(0);
         setCurrentSessionId(null);
+        setCurrentSessionType(null);
       }
     });
     return unsubscribe;
@@ -98,7 +90,8 @@ export function useVotingSession(users) {
     if (!votingActive || !currentSessionId) return;
 
     try {
-      const notVotedUsers = getNotVotedUsers(users, sessionCandidates, {});
+      // Use refs to get current values
+      const notVotedUsers = getNotVotedUsers(usersRef.current, sessionCandidatesRef.current, {});
       await FirebaseService.stopVotingSession(
         currentSessionId,
         notVotedUsers.map((u) => u.uid)
@@ -106,11 +99,12 @@ export function useVotingSession(users) {
       setVotingActive(false);
       setSessionTimeLeft(0);
       setCurrentSessionId(null);
+      setCurrentSessionType(null);
       message.success(MESSAGES.SUCCESS.SESSION_STOPPED);
     } catch (error) {
       message.error(`${MESSAGES.ERROR.SESSION_STOP_FAILED}: ${error.message}`);
     }
-  }, [votingActive, currentSessionId, users, sessionCandidates]);
+  }, [votingActive, currentSessionId]);
 
   // Timer effect
   useEffect(() => {
@@ -134,9 +128,21 @@ export function useVotingSession(users) {
 
   // Listen to session data and votes when active
   useEffect(() => {
-    if (!votingActive || !currentSessionId) return;
+    if (!votingActive || !currentSessionId) {
+      // Clean up listeners when session is not active
+      if (sessionListenerRef.current) {
+        sessionListenerRef.current();
+        sessionListenerRef.current = null;
+      }
+      if (votesListenerRef.current) {
+        votesListenerRef.current();
+        votesListenerRef.current = null;
+      }
+      return;
+    }
 
-    const unsubscribeSession = FirebaseService.listenToSessionData(
+    // Set up session data listener
+    sessionListenerRef.current = FirebaseService.listenToSessionData(
       currentSessionId,
       (session) => {
         if (session.voteType === VOTE_TYPES.ELECTION) {
@@ -149,24 +155,33 @@ export function useVotingSession(users) {
       }
     );
 
-    const unsubscribeVotes = FirebaseService.listenToSessionVotes(
+    // Set up votes listener
+    votesListenerRef.current = FirebaseService.listenToSessionVotes(
       currentSessionId,
       (votes) => {
         setSessionVoteCount(Object.keys(votes).length);
         setCandidateVotes(calculateCandidateVotes(votes));
         
         // Calculate not voted users (only for election type)
-        const notVotedUsers = getNotVotedUsers(users, sessionCandidates, votes);
+        // Use refs to get current values without triggering re-renders
+        const notVotedUsers = getNotVotedUsers(usersRef.current, sessionCandidatesRef.current, votes);
         setNotVotedUserCount(notVotedUsers.length);
         setNotVotedUserList(notVotedUsers);
       }
     );
 
+    // Cleanup function
     return () => {
-      unsubscribeSession();
-      unsubscribeVotes();
+      if (sessionListenerRef.current) {
+        sessionListenerRef.current();
+        sessionListenerRef.current = null;
+      }
+      if (votesListenerRef.current) {
+        votesListenerRef.current();
+        votesListenerRef.current = null;
+      }
     };
-  }, [votingActive, currentSessionId, users, sessionCandidates]);
+  }, [votingActive, currentSessionId]);
 
   const startVotingSession = async (sessionConfig) => {
     const { duration, voteType, candidates, questions } = sessionConfig;
@@ -187,6 +202,7 @@ export function useVotingSession(users) {
       setSessionTimeLeft(result.duration);
       setVotingActive(true);
       setCurrentSessionId(result.sessionId);
+      setCurrentSessionType(voteType);
       
       const typeText = voteType === VOTE_TYPES.ELECTION ? "election" : "question";
       message.success(`${MESSAGES.SUCCESS.SESSION_STARTED} (${typeText}) for ${duration} minutes`);
@@ -197,7 +213,8 @@ export function useVotingSession(users) {
     }
   };
 
-  return {
+  const value = {
+    // Session state
     votingActive,
     sessionTimeLeft,
     sessionVoteCount,
@@ -206,97 +223,21 @@ export function useVotingSession(users) {
     notVotedUserCount,
     notVotedUserList,
     currentSessionId,
+    currentSessionType,
+    
+    // User data and actions
+    users,
+    addUser,
+    removeUser,
+    
+    // Session actions
     startVotingSession,
     stopVotingSession,
   };
-}
 
-/**
- * Custom hook for card scanning
- */
-export function useCardScanning() {
-  const [waitingForCard, setWaitingForCard] = useState(false);
-
-  const listenForCard = useCallback((onCardScanned) => {
-    setWaitingForCard(true);
-    
-    const unsubscribe = FirebaseService.listenForCard((result) => {
-      if (result.error) {
-        message.error(result.error);
-        setWaitingForCard(false);
-        return;
-      }
-      
-      if (result.uid) {
-        onCardScanned(result.uid);
-        setWaitingForCard(false);
-      }
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const stopListening = useCallback(() => {
-    setWaitingForCard(false);
-  }, []);
-
-  return { waitingForCard, listenForCard, stopListening };
-}
-
-/**
- * Custom hook for session details
- */
-export function useSessionDetails() {
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [openSessionDetail, setOpenSessionDetail] = useState(false);
-  const [detailSession, setDetailSession] = useState(null);
-  const [detailCandidates, setDetailCandidates] = useState([]);
-  const [detailCandidateVotes, setDetailCandidateVotes] = useState({});
-
-  useEffect(() => {
-    if (!openSessionDetail || !selectedSession) return;
-
-    const unsubscribeSession = FirebaseService.listenToSessionData(
-      selectedSession,
-      (session) => {
-        setDetailSession(session);
-        setDetailCandidates(Object.keys(session.candidates || {}));
-      }
-    );
-
-    const unsubscribeVotes = FirebaseService.listenToSessionVotes(
-      selectedSession,
-      (votes) => {
-        setDetailCandidateVotes(calculateCandidateVotes(votes));
-      }
-    );
-
-    return () => {
-      unsubscribeSession();
-      unsubscribeVotes();
-    };
-  }, [openSessionDetail, selectedSession]);
-
-  const openDetails = useCallback((sessionId) => {
-    setSelectedSession(sessionId);
-    setOpenSessionDetail(true);
-  }, []);
-
-  const closeDetails = useCallback(() => {
-    setOpenSessionDetail(false);
-    setSelectedSession(null);
-    setDetailSession(null);
-    setDetailCandidates([]);
-    setDetailCandidateVotes({});
-  }, []);
-
-  return {
-    selectedSession,
-    openSessionDetail,
-    detailSession,
-    detailCandidates,
-    detailCandidateVotes,
-    openDetails,
-    closeDetails,
-  };
-}
+  return (
+    <VotingContext.Provider value={value}>
+      {children}
+    </VotingContext.Provider>
+  );
+};

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Card, message, Spin } from "antd";
-import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { Form, Input, Button, Card, message, Alert } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { auth, signInWithEmailAndPassword, onAuthStateChanged } from "../firebase";
 import { PATH } from "../constants/PATH";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [shakeForm, setShakeForm] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -23,12 +25,14 @@ const LoginPage = () => {
 
   const onFinish = async (values) => {
     setLoading(true);
+    setError(null); // Clear any previous errors
+    setShakeForm(false); // Reset shake animation
+    
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       message.success("Login successful!");
       navigate(PATH.DASHBOARD);
     } catch (error) {
-      console.error("Login error:", error);
       let errorMessage = "Login failed. Please try again.";
       
       switch (error.code) {
@@ -47,20 +51,28 @@ const LoginPage = () => {
         case "auth/too-many-requests":
           errorMessage = "Too many failed attempts. Please try again later.";
           break;
+        case "auth/invalid-credential": 
+          errorMessage = "Invalid login credentials. Please check your email and password.";
+          break;
         default:
-          errorMessage = error.message || errorMessage;
+          break;
       }
       
-      message.error(errorMessage);
+      // Set error state and trigger shake animation
+      setError(errorMessage);
+      setShakeForm(true);
+      
+      // Clear shake animation after it completes
+      setTimeout(() => setShakeForm(false), 500);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5] px-4">
       <Card 
-        className="w-full max-w-md shadow-lg"
+        className={`w-full max-w-md shadow-lg animate-fadeIn transition-all duration-300 ${error ? 'shadow-red-200 border-red-200' : 'hover:shadow-xl'}`}
         title={
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
@@ -79,7 +91,23 @@ const LoginPage = () => {
           layout="vertical"
           size="large"
           autoComplete="off"
+          requiredMark={false}
+          className={shakeForm ? "animate-shake" : ""}
         >
+          {/* Animated Error Alert */}
+          {error && (
+            <div className="mb-4">
+              <Alert
+                message={error}
+                type="error"
+                icon={<ExclamationCircleOutlined />}
+                closable
+                onClose={() => setError(null)}
+                className="animate-slideInDown error-alert border-red-300 bg-red-50 shadow-sm"
+              />
+            </div>
+          )}
+
           <Form.Item
             name="email"
             label="Email"
@@ -95,7 +123,6 @@ const LoginPage = () => {
             ]}
           >
             <Input
-              prefix={<UserOutlined className="text-gray-400" />}
               placeholder="Enter your email"
               autoComplete="email"
             />
@@ -116,7 +143,6 @@ const LoginPage = () => {
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined className="text-gray-400" />}
               placeholder="Enter your password"
               autoComplete="current-password"
             />
@@ -126,26 +152,14 @@ const LoginPage = () => {
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full"
+              className={`w-full transition-all duration-200 ${loading ? 'transform scale-95' : 'hover:transform hover:scale-105'}`}
               loading={loading}
               disabled={loading}
             >
-              {loading ? <Spin size="small" /> : "Sign In"}
+              {loading ? 'Signing In...' : 'Sign In'}
             </Button>
           </Form.Item>
         </Form>
-
-        <div className="text-center mt-4">
-          <p className="text-gray-500 text-sm">
-            Demo Credentials:
-          </p>
-          <p className="text-gray-600 text-xs mt-1">
-            Email: tu.hoangminh15@gmail.com
-          </p>
-          <p className="text-gray-600 text-xs">
-            Password: admin123
-          </p>
-        </div>
       </Card>
     </div>
   );

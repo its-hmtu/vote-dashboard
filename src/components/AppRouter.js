@@ -4,12 +4,14 @@ import AppLayout from "./AppLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import { Dashboard, Sessions, Users, Settings, Analytics, LoginPage } from "../pages";
 import { AuthProvider } from "../contexts/AuthContext";
+import { VotingProvider } from "../contexts/VotingContext";
 import { PATH } from "../constants/PATH";
 
 function AppRouter() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <VotingProvider>
+        <BrowserRouter>
         <Routes>
           {/* Login route without layout */}
           <Route path={PATH.LOGIN} element={<LoginPage />} />
@@ -71,6 +73,7 @@ function AppRouter() {
           <Route path="*" element={<Navigate to={PATH.DASHBOARD} replace />} />
         </Routes>
       </BrowserRouter>
+      </VotingProvider>
     </AuthProvider>
   );
 }
