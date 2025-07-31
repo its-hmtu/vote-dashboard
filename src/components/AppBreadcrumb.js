@@ -58,7 +58,7 @@ const AppBreadcrumb = () => {
 
   return (
     <Breadcrumb
-      className="app-breadcrumb flex items-center mt-16"
+      className="app-breadcrumb flex items-center"
       items={breadcrumbItems}
     />
   );

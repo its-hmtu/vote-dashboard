@@ -115,6 +115,22 @@ export const FirebaseService = {
   },
 
   /**
+   * Update user
+   */
+  async updateUser(uid, name) {
+    // Get existing user data to preserve createdAt
+    const userRef = ref(db, `${FIREBASE_PATHS.USERS}/${uid}`);
+    const snapshot = await get(userRef);
+    const existingUser = snapshot.val() || {};
+    
+    await set(userRef, {
+      name,
+      createdAt: existingUser.createdAt, // Preserve original creation date
+      updatedAt: moment().format(),
+    });
+  },
+
+  /**
    * Start voting session
    */
   async startVotingSession(sessionConfig) {

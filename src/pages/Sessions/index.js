@@ -1,9 +1,7 @@
 import React from "react";
 import { Typography } from "antd";
-import {
-  SessionHistory,
-  SessionDetailsModal,
-} from "../../components";
+import SessionHistory from "./SessionHistory";
+import SessionDetailsModal from "./SessionDetailsModal";
 import {
   useSessions,
   useSessionDetails,
@@ -27,16 +25,14 @@ function Sessions() {
 
   return (
     <div>
-      <Title level={2}>Session Management</Title>
-      
-      {/* Session History */}
+      <Title level={2}>Session Management ({sessions.length})</Title>
+
       <SessionHistory
         sessions={sessions}
         onViewDetails={openDetails}
         onRemoveSession={removeSession}
       />
 
-      {/* Session Details Modal */}
       <SessionDetailsModal
         open={openSessionDetail}
         onClose={closeDetails}

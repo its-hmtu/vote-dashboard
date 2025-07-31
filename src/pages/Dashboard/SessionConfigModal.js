@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Modal, Form, Input, Select, Radio, Button, Space } from "antd";
 import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
-import { SESSION_CONFIG, VOTE_TYPES } from "../constants";
-import { validateSessionDuration, validateSessionConfig, validateCandidates } from "../utils/validation";
+import { SESSION_CONFIG, VOTE_TYPES } from "../../constants";
+import { validateSessionDuration, validateSessionConfig, validateCandidates } from "../../utils/validation";
 
 const { Option } = Select;
 

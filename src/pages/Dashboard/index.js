@@ -23,10 +23,8 @@ import {
   BarChartOutlined,
   TeamOutlined
 } from "@ant-design/icons";
-import {
-  SessionControl,
-  CurrentSessionDashboard,
-} from "../../components";
+import CurrentSessionDashboard from "./CurrentSessionDashboard";
+import SessionControl from "./SessionControl";
 import { useVotingContext } from "../../contexts/VotingContext";
 import { useSessions } from "../../hooks/useVoting";
 

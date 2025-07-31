@@ -1,8 +1,8 @@
 import React from "react";
 import { Card, Statistic, Row, Col, Alert } from "antd";
 import { ClockCircleOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
-import { formatSeconds } from "../utils";
-import VoteResultsTable from "./VoteResultsTable";
+import { formatSeconds } from "../../utils";
+import VoteResultsTable from "../../components/VoteResultsTable";
 
 function CurrentSessionDashboard({
   votingActive,

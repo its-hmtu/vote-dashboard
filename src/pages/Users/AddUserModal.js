@@ -1,9 +1,9 @@
 import React from "react";
-import { Modal, Form, Input, Button, Alert, Spin, Space } from "antd";
+import { Modal, Form, Input, Button, Alert, Space } from "antd";
 import { ScanOutlined } from "@ant-design/icons";
-import { useCardScanning } from "../hooks/useVoting";
-import { FirebaseService } from "../services/firebaseService";
-import { validateUser } from "../utils/validation";
+import { useCardScanning } from "../../hooks/useVoting";
+import { FirebaseService } from "../../services/firebaseService";
+import { validateUser } from "../../utils/validation";
 
 function AddUserModal({ open, onCancel, onAddUser, form }) {
   const { waitingForCard, listenForCard, stopListening } = useCardScanning();
@@ -91,7 +91,6 @@ function AddUserModal({ open, onCancel, onAddUser, form }) {
           <Input 
             placeholder="Please scan your card" 
             readOnly 
-            prefix={waitingForCard ? <Spin size="small" /> : <ScanOutlined />}
           />
         </Form.Item>
         

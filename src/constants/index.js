@@ -72,6 +72,7 @@ export const DATE_FORMATS = {
 export const MESSAGES = {
   SUCCESS: {
     USER_ADDED: 'User added successfully',
+    USER_UPDATED: 'User updated successfully',
     USER_REMOVED: 'User removed successfully',
     SESSION_STARTED: 'Voting session started',
     SESSION_STOPPED: 'Voting session stopped',
@@ -80,6 +81,7 @@ export const MESSAGES = {
   ERROR: {
     USER_ADD_FAILED: 'Failed to add user',
     USER_REMOVE_FAILED: 'Failed to remove user',
+    USER_UPDATE_FAILED: 'Failed to update user',
     SESSION_START_FAILED: 'Failed to start session',
     SESSION_STOP_FAILED: 'Failed to stop session',
     SESSION_REMOVE_FAILED: 'Failed to remove session',

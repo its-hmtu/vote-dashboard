@@ -1,41 +1,44 @@
 import React from "react";
-import { Table, Button, Badge, Card, Typography, Space, Popconfirm } from "antd";
-import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Table, Button, Badge, Dropdown, Card } from "antd";
+import { EllipsisOutlined } from "@ant-design/icons";
 import moment from "moment";
-import { formatSeconds, sortSessions } from "../utils";
-import { MESSAGES } from "../constants";
-
-const { Title } = Typography;
-
+import { formatSeconds, sortSessions } from "../../utils";
+import { MESSAGES } from "../../constants";
 function SessionHistory({ sessions, onViewDetails, onRemoveSession }) {
-  const sortedSessions = sortSessions(sessions)?.map((session) => ({ 
+  const sortedSessions = sortSessions(sessions)?.map((session) => ({
     ...session,
     key: session.sessionId,
   }));
 
+  const [pageSize, setPageSize] = React.useState(10);
+
   const columns = [
-    { 
-      title: "Session ID", 
+    {
+      title: "Session ID",
       dataIndex: "sessionId",
       render: (sessionId) => (
-        <code style={{ fontSize: '12px' }}>{sessionId}</code>
+        <code style={{ fontSize: "12px" }}>{sessionId}</code>
       ),
+      align: "center",
     },
-    { 
-      title: "Start Time", 
+    {
+      title: "Start Time",
       dataIndex: "startTime",
       sorter: (a, b) => new Date(a.startTime) - new Date(b.startTime),
+      align: "center",
     },
     {
       title: "End Time",
       dataIndex: "end_time",
       render: (text) =>
         text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : "-",
+      align: "center",
     },
     {
       title: "Duration",
       dataIndex: "duration",
       render: (secs) => formatSeconds(secs),
+      align: "center",
     },
     {
       title: "Status",
@@ -53,16 +56,18 @@ function SessionHistory({ sessions, onViewDetails, onRemoveSession }) {
         />
       ),
       filters: [
-        { text: 'Active', value: 'active' },
-        { text: 'Stopped', value: 'stopped' },
-        { text: 'Completed', value: 'completed' },
+        { text: "Active", value: "active" },
+        { text: "Stopped", value: "stopped" },
+        { text: "Completed", value: "completed" },
       ],
       onFilter: (value, record) => record.status === value,
+      align: "center",
     },
-    { 
-      title: "Total Votes", 
+    {
+      title: "Total Votes",
       dataIndex: "voteCount",
       sorter: (a, b) => a.voteCount - b.voteCount,
+      align: "center",
     },
     {
       title: "Not Voted Users",
@@ -70,9 +75,9 @@ function SessionHistory({ sessions, onViewDetails, onRemoveSession }) {
       render: (_, record) => {
         const notVotedUsers = record.notVotedUsers || [];
         return notVotedUsers.length > 0 ? (
-          <span style={{ color: '#cf1322' }}>{notVotedUsers.length}</span>
+          <span style={{ color: "#cf1322" }}>{notVotedUsers.length}</span>
         ) : (
-          <span style={{ color: '#3f8600' }}>0</span>
+          <span style={{ color: "#3f8600" }}>0</span>
         );
       },
       sorter: (a, b) => {
@@ -80,52 +85,58 @@ function SessionHistory({ sessions, onViewDetails, onRemoveSession }) {
         const bCount = (b.notVotedUsers || []).length;
         return aCount - bCount;
       },
+      align: "center",
     },
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <Space size="small">
+        <Dropdown
+          trigger={["click"]}
+          menu={{
+            items: [
+              {
+                key: "viewDetails",
+                label: "View Details",
+                onClick: () => onViewDetails(record.sessionId),
+              },
+              {
+                key: "removeSession",
+                label: "Remove Session",
+                danger: true,
+                onClick: () => {
+                  // We need to handle the confirmation here
+                  if (window.confirm(MESSAGES.CONFIRMATION.REMOVE_SESSION)) {
+                    onRemoveSession(record.sessionId);
+                  }
+                },
+              },
+            ],
+          }}
+        >
           <Button
-            type="link"
-            icon={<EyeOutlined />}
-            onClick={() => onViewDetails(record.sessionId)}
-            size="small"
+            type="text"
+            style={{ padding: 0, border: "none", background: "transparent" }}
           >
-            View
+            <EllipsisOutlined />
           </Button>
-          <Popconfirm
-            title="Remove Session"
-            description={MESSAGES.CONFIRMATION.REMOVE_SESSION}
-            onConfirm={() => onRemoveSession(record.sessionId)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button
-              type="link"
-              danger
-              icon={<DeleteOutlined />}
-              size="small"
-            >
-              Remove
-            </Button>
-          </Popconfirm>
-        </Space>
+        </Dropdown>
       ),
+      align: "center",
     },
   ];
 
   return (
-    <Card style={{ marginTop: 24 }}>
-      <Title level={4}>Session History ({sessions?.length || 0} sessions)</Title>
+    <Card>
       <Table
         dataSource={sortedSessions}
         columns={columns}
-        pagination={{ 
-          pageSize: 20,
+        pagination={{
+          pageSize: pageSize,
+          onChange: (page, size) => setPageSize(size),
           showSizeChanger: true,
           showQuickJumper: true,
-          showTotal: (total, range) => 
+          showTotal: (total, range) =>
             `${range[0]}-${range[1]} of ${total} sessions`,
         }}
         size="small"

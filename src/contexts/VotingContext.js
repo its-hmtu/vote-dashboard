@@ -66,6 +66,15 @@ export const VotingProvider = ({ children }) => {
     }
   };
 
+  const updateUser = async (uid, name) => {
+    try {
+      await FirebaseService.updateUser(uid, name);
+      message.success(MESSAGES.SUCCESS.USER_UPDATED);
+    } catch (error) {
+      message.error(`${MESSAGES.ERROR.USER_UPDATE_FAILED}: ${error.message}`);
+    }
+  }
+
   // Listen to current session
   useEffect(() => {
     const unsubscribe = FirebaseService.listenToCurrentSession((sessionInfo) => {
@@ -229,6 +238,7 @@ export const VotingProvider = ({ children }) => {
     users,
     addUser,
     removeUser,
+    updateUser,
     
     // Session actions
     startVotingSession,
