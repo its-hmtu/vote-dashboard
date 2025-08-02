@@ -191,9 +191,9 @@ function LatestSessionResults({ sessions, users }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <Title level={5}>Vote Logs</Title>
             <Button 
-              icon={<EyeOutlined />} 
               onClick={() => setShowVoteLogs(!showVoteLogs)}
               type={showVoteLogs ? "primary" : "default"}
+              style={{ borderRadius: 99 }}
             >
               {showVoteLogs ? 'Hide' : 'Show'} Logs
             </Button>

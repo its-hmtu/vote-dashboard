@@ -34,11 +34,13 @@ import SessionControl from "./SessionControl";
 import { useVotingContext } from "../../contexts/VotingContext";
 import { useSessions } from "../../hooks/useVoting";
 import { useVoteActivity } from "../../hooks/useVoteActivity";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
 function Dashboard() {
-  const [voteLogOpen, setVoteLogOpen] = useState(false);
+  const navigate = useNavigate();
+  // const [voteLogOpen, setVoteLogOpen] = useState(false);
   const {
     users,
     votingActive,
@@ -250,11 +252,11 @@ function Dashboard() {
         </Col>
         <Col>
           <Space>
-            <Button
+            {/* <Button
               icon={<HistoryOutlined />}
               onClick={() => setVoteLogOpen(true)}
               type="text"
-            />
+            /> */}
             {votingActive ? (
               <Badge dot color="green">
                 <Button
@@ -262,7 +264,9 @@ function Dashboard() {
                   icon={<PauseCircleOutlined />}
                   onClick={stopVotingSession}
                   danger
-                />
+                >
+                  Stop Current Session
+                </Button>
               </Badge>
             ) : (
               <SessionControl
@@ -364,7 +368,12 @@ function Dashboard() {
           <Card 
             title={
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Recent Sessions</span>
+                <Space style={{ justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                  <span>Recent Sessions</span>
+                  <Button onClick={() => navigate('/dashboard/sessions')} type="default" style={{ borderRadius: 99}}> 
+                    See more
+                  </Button>
+                </Space>
                 <Badge 
                   count={dashboardAnalytics.activeSessions} 
                   style={{ backgroundColor: '#52c41a' }}
@@ -439,7 +448,7 @@ function Dashboard() {
       </Row>
 
       {/* Vote Log Drawer */}
-      <Drawer
+      {/* <Drawer
         title="Vote Activity Log"
         placement="right"
         onClose={() => setVoteLogOpen(false)}
@@ -488,7 +497,7 @@ function Dashboard() {
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           />
         )}
-      </Drawer>
+      </Drawer> */}
     </div>
   );
 }

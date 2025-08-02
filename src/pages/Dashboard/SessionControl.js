@@ -41,7 +41,9 @@ function SessionControl({
             icon={<PlayCircleOutlined />}
             onClick={handleOpenModal}
             disabled={users.length < 2}
-          />
+          >
+            Start Voting Session
+          </Button>
         ) : null
       ) : (
         // Full control panel mode
