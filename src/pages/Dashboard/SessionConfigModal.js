@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Form, Input, Select, Radio, Button, Space } from "antd";
-import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
+import { Modal, Form, Input, Select, Radio } from "antd";
 import { SESSION_CONFIG, VOTE_TYPES } from "../../constants";
 import { validateSessionDuration, validateSessionConfig, validateCandidates } from "../../utils/validation";
 
@@ -30,26 +29,41 @@ function SessionConfigModal({
       return;
     }
 
-    // Validate session config based on vote type
-    const items = voteType === VOTE_TYPES.ELECTION ? values.candidates : values.questions;
-    const validation = validateSessionConfig(voteType, items, users);
-    
-    if (!validation.isValid) {
-      const fieldName = voteType === VOTE_TYPES.ELECTION ? 'candidates' : 'questions';
-      form.setFields([
-        {
-          name: fieldName,
-          errors: validation.errors,
-        },
-      ]);
-      return;
-    }
-
-    onStartSession({
+    // Prepare session config based on vote type
+    let sessionConfig = {
       duration,
       voteType,
-      ...(voteType === VOTE_TYPES.ELECTION ? { candidates: values.candidates } : { questions: values.questions }),
-    });
+    };
+
+    if (voteType === VOTE_TYPES.ELECTION) {
+      // Validate candidates
+      const validation = validateSessionConfig(voteType, values.candidates, users);
+      if (!validation.isValid) {
+        form.setFields([
+          {
+            name: 'candidates',
+            errors: validation.errors,
+          },
+        ]);
+        return;
+      }
+      sessionConfig.candidates = values.candidates;
+    } else if (voteType === VOTE_TYPES.QUESTION) {
+      // For single question, convert to array format expected by backend
+      const questionText = values.questions?.[0]?.text;
+      if (!questionText || questionText.trim().length < 5) {
+        form.setFields([
+          {
+            name: ['questions', 0, 'text'],
+            errors: ['Question text is required and must be at least 5 characters'],
+          },
+        ]);
+        return;
+      }
+      sessionConfig.questions = [{ text: questionText.trim() }];
+    }
+
+    onStartSession(sessionConfig);
   };
 
   const handleCancel = () => {
@@ -157,56 +171,22 @@ function SessionConfigModal({
         )}
 
         {voteType === VOTE_TYPES.QUESTION && (
-          <Form.List
-            name="questions"
+          <Form.Item
+            name={['questions', 0, 'text']}
+            label="Question"
             rules={[
-              {
-                validator: async (_, questions) => {
-                  if (!questions || questions.length < SESSION_CONFIG.TYPES[VOTE_TYPES.QUESTION].MIN_QUESTIONS) {
-                    return Promise.reject(new Error(`At least ${SESSION_CONFIG.TYPES[VOTE_TYPES.QUESTION].MIN_QUESTIONS} question is required`));
-                  }
-                  if (questions.length > SESSION_CONFIG.TYPES[VOTE_TYPES.QUESTION].MAX_QUESTIONS) {
-                    return Promise.reject(new Error(`Maximum ${SESSION_CONFIG.TYPES[VOTE_TYPES.QUESTION].MAX_QUESTIONS} questions allowed`));
-                  }
-                },
-              },
+              { required: true, message: 'Question text is required' },
+              { min: 5, message: 'Question must be at least 5 characters' },
+              { max: 200, message: 'Question must be less than 200 characters' },
             ]}
           >
-            {(fields, { add, remove }, { errors }) => (
-              <>
-                <Form.Item label="Questions">
-                  {fields.map(({ key, name, ...restField }) => (
-                    <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                      <Form.Item
-                        {...restField}
-                        name={[name, 'text']}
-                        rules={[
-                          { required: true, message: 'Question text is required' },
-                          { min: 5, message: 'Question must be at least 5 characters' },
-                          { max: 200, message: 'Question must be less than 200 characters' },
-                        ]}
-                      >
-                        <Input placeholder="Enter question" style={{ width: 400 }} />
-                      </Form.Item>
-                      <MinusCircleOutlined onClick={() => remove(name)} />
-                    </Space>
-                  ))}
-                  <Form.Item>
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      block
-                      icon={<PlusOutlined />}
-                      disabled={fields.length >= SESSION_CONFIG.TYPES[VOTE_TYPES.QUESTION].MAX_QUESTIONS}
-                    >
-                      Add Question
-                    </Button>
-                  </Form.Item>
-                </Form.Item>
-                <Form.ErrorList errors={errors} />
-              </>
-            )}
-          </Form.List>
+            <Input.TextArea 
+              placeholder="Enter your question (voters will answer Agree/Disagree/Neutral)" 
+              rows={3}
+              maxLength={200}
+              showCount
+            />
+          </Form.Item>
         )}
       </Form>
     </Modal>

@@ -15,7 +15,7 @@ export const SESSION_CONFIG = {
   MIN_CANDIDATES: 2,
   MAX_CANDIDATES: null, // Unlimited, but cannot exceed available users
   MIN_QUESTIONS: 1,
-  MAX_QUESTIONS: 10,
+  MAX_QUESTIONS: 1,
   TYPES: {
     [VOTE_TYPES.ELECTION]: {
       MIN_CANDIDATES: 2,
@@ -24,7 +24,7 @@ export const SESSION_CONFIG = {
     },
     [VOTE_TYPES.QUESTION]: {
       MIN_QUESTIONS: 1,
-      MAX_QUESTIONS: 10,
+      MAX_QUESTIONS: 1,
       CHOICES: ['A', 'B', 'C'], // A: Agree, B: Disagree, C: Neutral
     },
   },

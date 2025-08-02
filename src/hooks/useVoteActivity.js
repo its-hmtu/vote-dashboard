@@ -58,15 +58,15 @@ export function useVoteActivity(sessions, users, limit = 10) {
               }
             } else {
               // For questions, show the answer with proper formatting
-              const answer = voteData.answer || voteData.vote || 'Unknown Response';
-              if (answer === 'AGREE' || answer === 'A') {
+              const answer = (voteData.choice || voteData.answer || voteData.vote || 'Unknown Response').toLowerCase();
+              if (answer === 'agree' || answer === 'a') {
                 voteDisplay = 'Agree';
-              } else if (answer === 'DISAGREE' || answer === 'B') {
+              } else if (answer === 'disagree' || answer === 'b') {
                 voteDisplay = 'Disagree';
-              } else if (answer === 'NEUTRAL' || answer === 'C') {
+              } else if (answer === 'neutral' || answer === 'c') {
                 voteDisplay = 'Neutral';
               } else {
-                voteDisplay = answer;
+                voteDisplay = voteData.choice || voteData.answer || voteData.vote || 'Unknown Response';
               }
             }
 

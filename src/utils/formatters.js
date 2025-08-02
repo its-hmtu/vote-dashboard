@@ -206,7 +206,8 @@ export function calculateSessionResults(session, votes, users) {
     };
     
     voteEntries.forEach(vote => {
-      const voteValue = (vote.answer || vote.vote || '').toLowerCase();
+      // Handle both choice and answer fields, and different case formats
+      const voteValue = (vote.choice || vote.answer || vote.vote || '').toLowerCase();
       if (voteValue === 'agree' || voteValue === 'a') {
         questionResults.yes++;
         questionResults.YES++;

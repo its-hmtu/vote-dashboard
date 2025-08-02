@@ -271,4 +271,36 @@ export const FirebaseService = {
     });
     return () => off(sessionRef);
   },
+
+  /**
+   * Get system settings
+   */
+  async getSettings() {
+    const settingsRef = ref(db, `${FIREBASE_PATHS.CONFIG}/settings`);
+    const snapshot = await get(settingsRef);
+    return snapshot.val() || {};
+  },
+
+  /**
+   * Save system settings
+   */
+  async saveSettings(settings) {
+    const settingsRef = ref(db, `${FIREBASE_PATHS.CONFIG}/settings`);
+    await set(settingsRef, {
+      ...settings,
+      updatedAt: moment().format(),
+    });
+  },
+
+  /**
+   * Listen to system settings
+   */
+  listenToSettings(callback) {
+    const settingsRef = ref(db, `${FIREBASE_PATHS.CONFIG}/settings`);
+    onValue(settingsRef, (snapshot) => {
+      const settings = snapshot.val() || {};
+      callback(settings);
+    });
+    return () => off(settingsRef);
+  },
 };

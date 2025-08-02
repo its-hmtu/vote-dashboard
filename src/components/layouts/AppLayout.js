@@ -52,11 +52,11 @@ function AppLayout({ children }) {
       icon: <TeamOutlined />,
       label: "Users",
     },
-    {
-      key: PATH.SETTINGS,
-      icon: <SettingOutlined />,
-      label: "Settings",
-    },
+    // {
+    //   key: PATH.SETTINGS,
+    //   icon: <SettingOutlined />,
+    //   label: "Settings",
+    // },
   ];
 
   const handleMenuClick = ({ key }) => {

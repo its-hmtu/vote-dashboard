@@ -47,6 +47,8 @@ function Dashboard() {
     sessionCandidates,
     candidateVotes,
     notVotedUserCount,
+    currentSessionId,
+    currentSessionType,
     startVotingSession,
     stopVotingSession,
   } = useVotingContext();
@@ -348,6 +350,8 @@ function Dashboard() {
           sessionCandidates={sessionCandidates}
           candidateVotes={candidateVotes}
           users={users}
+          currentSessionId={currentSessionId}
+          currentSessionType={currentSessionType}
         />
       )}
 

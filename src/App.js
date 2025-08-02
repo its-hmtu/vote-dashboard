@@ -65,7 +65,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
+            {/* <Route
               path={PATH.SETTINGS}
               element={
                 <ProtectedRoute>
@@ -74,7 +74,7 @@ function App() {
                   </AppLayout>
                 </ProtectedRoute>
               }
-            />
+            /> */}
             <Route
               path="*"
               element={<Navigate to={PATH.DASHBOARD} replace />}

@@ -1,7 +1,11 @@
 {
+  "config": {
+    "current_session": "session_1754157181136",
+    "vote_type": "question"
+  },
   "mode": {
     "create": 0,
-    "vote": 0
+    "vote": 1
   },
   "sessions": {
     "session_1754150904722": {
@@ -28,6 +32,49 @@
       "start_time": 1754150904,
       "status": "stopped",
       "voteType": "election"
+    },
+    "session_1754156975275": {
+      "duration": 120,
+      "end_time": "2025-08-03T00:49:51+07:00",
+      "end_time_unix": 1754156991,
+      "notVotedUsers": [
+        "34691605",
+        "043BDCFD730000",
+        "06B29F9F",
+        "25087ABE",
+        "25C76EBE",
+        "26F43F9F",
+        "35AC6FF2",
+        "4566C4BE",
+        "582C4CD2",
+        "656220BE",
+        "65BEDDF1",
+        "B8ED71D1",
+        "E6577E9F"
+      ],
+      "questions": [
+        {
+          "id": "q_0",
+          "order": 0,
+          "text": "Who should be the next class president?"
+        }
+      ],
+      "start_time": 1754156975,
+      "status": "stopped",
+      "voteType": "question"
+    },
+    "session_1754157181136": {
+      "duration": 120,
+      "questions": [
+        {
+          "id": "q_0",
+          "order": 0,
+          "text": "Who should be the next class president?"
+        }
+      ],
+      "start_time": 1754157181,
+      "status": "active",
+      "voteType": "question"
     }
   },
   "users": {
@@ -118,6 +165,28 @@
       "E6577E9F": {
         "candidate_uid": "3",
         "timestamp": 1754176169
+      }
+    },
+    "session_1754157181136": {
+      "043BDCFD730000": {
+        "choice": "agree",
+        "timestamp": 1754182403
+      },
+      "26F43F9F": {
+        "choice": "disagree",
+        "timestamp": 1754182432
+      },
+      "582C4CD2": {
+        "choice": "agree",
+        "timestamp": 1754182447
+      },
+      "656220BE": {
+        "choice": "disagree",
+        "timestamp": 1754182459
+      },
+      "E6577E9F": {
+        "choice": "agree",
+        "timestamp": 1754182465
       }
     }
   }

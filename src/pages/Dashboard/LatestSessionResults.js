@@ -232,15 +232,15 @@ function LatestSessionResults({ sessions, users }) {
                     }
                   } else {
                     // For questions, show formatted answer
-                    const answer = vote.answer || vote.vote || 'Unknown';
-                    if (answer === 'AGREE' || answer === 'A') {
+                    const answer = (vote.choice || vote.answer || vote.vote || 'Unknown').toLowerCase();
+                    if (answer === 'agree' || answer === 'a') {
                       voteDisplay = 'Agree';
-                    } else if (answer === 'DISAGREE' || answer === 'B') {
+                    } else if (answer === 'disagree' || answer === 'b') {
                       voteDisplay = 'Disagree'; 
-                    } else if (answer === 'NEUTRAL' || answer === 'C') {
+                    } else if (answer === 'neutral' || answer === 'c') {
                       voteDisplay = 'Neutral';
                     } else {
-                      voteDisplay = answer;
+                      voteDisplay = vote.choice || vote.answer || vote.vote || 'Unknown';
                     }
                   }
                   

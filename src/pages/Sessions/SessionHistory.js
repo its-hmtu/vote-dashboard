@@ -41,6 +41,22 @@ function SessionHistory({ sessions, onViewDetails, onRemoveSession }) {
       align: "center",
     },
     {
+      title: "Type",
+      dataIndex: "voteType",
+      render: (type) => (
+        <Badge
+          color={type === "election" ? "blue" : "green"}
+          text={type === "election" ? "Election" : "Question"}
+        />
+      ),
+      filters: [
+        { text: "Election", value: "election" },
+        { text: "Question", value: "question" },
+      ],
+      onFilter: (value, record) => record.voteType === value,
+      align: "center",
+    },
+    {
       title: "Status",
       dataIndex: "status",
       render: (status) => (
