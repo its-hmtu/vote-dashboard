@@ -31,20 +31,16 @@ function AppLayout({ children }) {
     }
   };
 
-  const userMenuItems = [
-    {
-      key: "logout",
-      icon: <LogoutOutlined />,
-      label: "Logout",
-      onClick: handleLogout,
-    },
-  ];
-
   const menuItems = [
     {
       key: PATH.DASHBOARD,
       icon: <DashboardOutlined />,
       label: "Dashboard",
+    },
+    {
+      key: PATH.ANALYTICS,
+      icon: <BarChartOutlined />,
+      label: "Analytics",
     },
     {
       key: PATH.SESSIONS,
@@ -55,11 +51,6 @@ function AppLayout({ children }) {
       key: PATH.USERS,
       icon: <TeamOutlined />,
       label: "Users",
-    },
-    {
-      key: PATH.ANALYTICS,
-      icon: <BarChartOutlined />,
-      label: "Analytics",
     },
     {
       key: PATH.SETTINGS,

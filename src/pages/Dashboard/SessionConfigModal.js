@@ -32,7 +32,7 @@ function SessionConfigModal({
 
     // Validate session config based on vote type
     const items = voteType === VOTE_TYPES.ELECTION ? values.candidates : values.questions;
-    const validation = validateSessionConfig(voteType, items);
+    const validation = validateSessionConfig(voteType, items, users);
     
     if (!validation.isValid) {
       const fieldName = voteType === VOTE_TYPES.ELECTION ? 'candidates' : 'questions';
@@ -121,17 +121,18 @@ function SessionConfigModal({
         {voteType === VOTE_TYPES.ELECTION && (
           <Form.Item
             name="candidates"
-            label={`Select Candidates (${SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION].MIN_CANDIDATES}-${SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION].MAX_CANDIDATES})`}
+            label={`Select Candidates (min: ${SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION].MIN_CANDIDATES}, max: ${users.length})`}
             rules={[
               {
                 required: true,
-                message: `Please select ${SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION].MIN_CANDIDATES} to ${SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION].MAX_CANDIDATES} candidates`,
+                message: `Please select at least ${SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION].MIN_CANDIDATES} candidates`,
               },
               {
                 validator: (_, value) => {
-                  if (!validateCandidates(value)) {
+                  if (!validateCandidates(value, users)) {
+                    const config = SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION];
                     return Promise.reject(
-                      new Error(`Please select ${SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION].MIN_CANDIDATES} to ${SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION].MAX_CANDIDATES} candidates`)
+                      new Error(`Please select ${config.MIN_CANDIDATES} to ${users.length} candidates`)
                     );
                   }
                   return Promise.resolve();
@@ -142,7 +143,7 @@ function SessionConfigModal({
             <Select
               mode="multiple"
               placeholder="Select candidates"
-              maxCount={SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION].MAX_CANDIDATES}
+              maxCount={users.length}
               optionFilterProp="label"
               showSearch
             >

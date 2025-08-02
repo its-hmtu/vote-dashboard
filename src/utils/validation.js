@@ -30,16 +30,32 @@ export function validateVoteType(voteType) {
 /**
  * Validate candidates selection (for election type)
  * @param {Array} candidates - Array of candidate UIDs
+ * @param {Array} allUsers - Array of all users (optional, for max validation)
  * @returns {boolean} Is valid
  */
-export function validateCandidates(candidates) {
+export function validateCandidates(candidates, allUsers = null) {
   const config = SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION];
-  return (
-    candidates &&
-    Array.isArray(candidates) &&
-    candidates.length >= config.MIN_CANDIDATES &&
-    candidates.length <= config.MAX_CANDIDATES
-  );
+  
+  if (!candidates || !Array.isArray(candidates)) {
+    return false;
+  }
+  
+  // Check minimum candidates
+  if (candidates.length < config.MIN_CANDIDATES) {
+    return false;
+  }
+  
+  // Check maximum candidates (if MAX_CANDIDATES is set and allUsers provided)
+  if (config.MAX_CANDIDATES !== null && candidates.length > config.MAX_CANDIDATES) {
+    return false;
+  }
+  
+  // Check that candidates don't exceed available users
+  if (allUsers && candidates.length > allUsers.length) {
+    return false;
+  }
+  
+  return true;
 }
 
 /**
@@ -62,9 +78,10 @@ export function validateQuestions(questions) {
  * Validate session configuration based on vote type
  * @param {string} voteType - Type of vote
  * @param {Array} items - Candidates for election or questions for question type
+ * @param {Array} allUsers - Array of all users (for candidate validation)
  * @returns {Object} Validation result
  */
-export function validateSessionConfig(voteType, items) {
+export function validateSessionConfig(voteType, items, allUsers = null) {
   const errors = [];
 
   if (!validateVoteType(voteType)) {
@@ -73,9 +90,12 @@ export function validateSessionConfig(voteType, items) {
   }
 
   if (voteType === VOTE_TYPES.ELECTION) {
-    if (!validateCandidates(items)) {
+    if (!validateCandidates(items, allUsers)) {
       const config = SESSION_CONFIG.TYPES[VOTE_TYPES.ELECTION];
-      errors.push(`Please select ${config.MIN_CANDIDATES} to ${config.MAX_CANDIDATES} candidates`);
+      const maxMsg = config.MAX_CANDIDATES 
+        ? ` to ${config.MAX_CANDIDATES}` 
+        : ` (max: ${allUsers ? allUsers.length : 'unlimited'})`;
+      errors.push(`Please select ${config.MIN_CANDIDATES}${maxMsg} candidates`);
     }
   } else if (voteType === VOTE_TYPES.QUESTION) {
     if (!validateQuestions(items)) {

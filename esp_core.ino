@@ -75,6 +75,10 @@ int isVote;
 int isCreate;
 unsigned long sendDataPrevMillis = 0;
 String currentSession = "";
+String voteType = "election"; // default
+String enteredNumber = "";    // for election votes
+char selectedVote = '\0';     // for question votes
+int candidateCount = 0;       // number of candidates in current session
 
 void updateDisplay() {
   lcd.clear();
@@ -94,6 +98,7 @@ void updateDisplay() {
 void checkVotingStatus() {
   if (Firebase.ready() && millis() - sendDataPrevMillis > 1000 || sendDataPrevMillis == 0) {
     sendDataPrevMillis = millis();
+
     if (Firebase.RTDB.getInt(&fbdo, "mode/create")) {
       isCreate = fbdo.intData();
     }
@@ -101,7 +106,28 @@ void checkVotingStatus() {
       isVote = fbdo.intData();
       if (Firebase.RTDB.getString(&fbdo, "config/current_session")) {
         currentSession = fbdo.stringData();
+        
+        // Get candidate count for validation
+        if (currentSession != "" && Firebase.RTDB.get(&fbdo, "sessions/" + currentSession + "/candidates")) {
+          if (fbdo.dataType() == "json") {
+            FirebaseJsonData result;
+            FirebaseJson json = fbdo.jsonObject();
+            candidateCount = 0;
+            json.iteratorBegin();
+            String key, value;
+            int type;
+            while (json.iteratorGet(&result)) {
+              candidateCount++;
+              json.iteratorNext();
+            }
+            json.iteratorEnd();
+          }
+        }
       }
+    }
+    if (Firebase.RTDB.getString(&fbdo, "config/vote_type")) {
+      voteType = fbdo.stringData();
+      voteType.toLowerCase();
     }
     updateDisplay();
   }
@@ -146,107 +172,83 @@ bool checkIfVoted(String uid) {
 }
 
 bool checkIfCardValid(String uid) {
-  if (Firebase.RTDB.getString(&fbdo, "users/" + uid)) {
-    return !fbdo.stringData().isEmpty();
+  if (Firebase.RTDB.get(&fbdo, "users/" + uid)) {
+    return fbdo.dataType() != "" && fbdo.dataType() != "null";
   }
   return false;
 }
 
 String currentUID = "";
-void handleVote(char selectedVote) {
-  // Map the selected vote (1-4) to actual candidate UIDs
-  String candidatePath = "sessions/" + currentSession + "/candidates/";
-  String candidateUID = "";
 
-  // Get the list of candidates for this session
-  if (Firebase.RTDB.getJSON(&fbdo, candidatePath)) {
-    FirebaseJson json = fbdo.jsonObject();
+void handleVoteElection(String candidateUID) {
+  String votePath = "votes/" + currentSession + "/" + currentUID;
+  FirebaseJson voteJson;
+  voteJson.set("candidate_uid", candidateUID);
+  voteJson.set("timestamp", timeClient.getEpochTime());
 
-    // Get the JSON data as a string and parse it manually
-    String jsonStr;
-    json.toString(jsonStr, true);
-
-    // Simple JSON parsing - looking for keys in the candidates object
-    int selectedIndex = selectedVote - '1';
-    int currentIndex = 0;
-
-    int startPos = 0;
-    while (currentIndex <= selectedIndex) {
-      int keyStart = jsonStr.indexOf('"', startPos);
-      if (keyStart == -1) break;
-
-      int keyEnd = jsonStr.indexOf('"', keyStart + 1);
-      if (keyEnd == -1) break;
-
-      if (currentIndex == selectedIndex) {
-        candidateUID = jsonStr.substring(keyStart + 1, keyEnd);
-        break;
-      }
-
-      // Skip the value portion
-      int valueStart = jsonStr.indexOf(':', keyEnd + 1);
-      if (valueStart == -1) break;
-
-      // Find the end of this value
-      int commaPos = jsonStr.indexOf(',', valueStart + 1);
-      if (commaPos == -1) {
-        // Last item in object
-        startPos = jsonStr.indexOf('}', valueStart + 1);
-      } else {
-        startPos = commaPos + 1;
-      }
-
-      currentIndex++;
-    }
-  }
-
-  if (!candidateUID.isEmpty()) {
-    // Record the vote with timestamp
-    String votePath = "votes/" + currentSession + "/" + currentUID;
-
-    FirebaseJson voteJson;
-    voteJson.set("candidate_uid", candidateUID);
-    voteJson.set("timestamp", timeClient.getEpochTime());
-
-    if (Firebase.RTDB.setJSON(&fbdo, votePath, &voteJson)) {
-      lcd.clear();
-      lcd.print("Vote recorded!");
-      lcd.setCursor(0, 1);
-      lcd.print("Thank you!");
-      buzz(200);
-      delay(3000);
-    } else {
-      lcd.clear();
-      lcd.print("Vote failed!");
-      lcd.setCursor(0, 1);
-      lcd.print("Try again");
-      buzz(100);
-      delay(100);
-      buzz(100);
-      delay(2000);
-    }
+  if (Firebase.RTDB.setJSON(&fbdo, votePath, &voteJson)) {
+    lcd.clear();
+    lcd.print("Vote recorded!");
+    lcd.setCursor(0, 1);
+    lcd.print("Thank you!");
+    buzz(200);
+    delay(3000);
   } else {
     lcd.clear();
-    lcd.print("Invalid selection");
+    lcd.print("Vote failed!");
     lcd.setCursor(0, 1);
     lcd.print("Try again");
-    buzz(300);
+    buzz(100);
+    delay(100);
+    buzz(100);
     delay(2000);
   }
+
+  // Reset choice after vote
+  enteredNumber = "";
+  selectedVote = '\0';
+}
+
+void handleVoteQuestion(char selectedVote) {
+  String choice = "";
+  if (selectedVote == 'A') choice = "agree";
+  if (selectedVote == 'B') choice = "disagree";
+  if (selectedVote == 'C') choice = "neutral";
+
+  String votePath = "votes/" + currentSession + "/" + currentUID;
+  FirebaseJson voteJson;
+  voteJson.set("choice", choice);
+  voteJson.set("timestamp", timeClient.getEpochTime());
+
+  if (Firebase.RTDB.setJSON(&fbdo, votePath, &voteJson)) {
+    lcd.clear();
+    lcd.print("Vote recorded!");
+    lcd.setCursor(0, 1);
+    lcd.print("Thank you!");
+    buzz(200);
+    delay(3000);
+  } else {
+    lcd.clear();
+    lcd.print("Vote failed!");
+    lcd.setCursor(0, 1);
+    lcd.print("Try again");
+    buzz(100);
+    delay(100);
+    buzz(100);
+    delay(2000);
+  }
+
+  // Reset choice after vote
+  enteredNumber = "";
+  selectedVote = '\0';
 }
 
 bool votingInProgress = false;
-unsigned long lastStatusCheck = 0;
 unsigned long voteStartTimeout = 0;
-char selectedVote = '\0';
-bool voteConfirmed = false;
 
 void loop() {
   timeClient.update();
 
-  // if (!votingInProgress && millis() - lastStatusCheck > 1000 || lastStatusCheck == 0) {
-  //   checkVotingStatus();
-  // }
   if (!votingInProgress) {
     checkVotingStatus();
   }
@@ -254,8 +256,6 @@ void loop() {
   if (isCreate == 1 && mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
     buzz();
     String newUID = getCardUID();
-
-    // Send UID to Firebase
     if (Firebase.RTDB.setString(&fbdo, "new_user", newUID)) {
       lcd.clear();
       lcd.print("UID Sent");
@@ -267,29 +267,17 @@ void loop() {
       lcd.print("Send Failed!");
       buzz(300);
     }
-
     delay(2000);
     updateDisplay();
     return;
   }
 
-  // If card is presented
+  // Voting mode
   if (!votingInProgress && mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial()) {
     buzz();
     currentUID = getCardUID();
 
     if (isVote == 1) {
-      if (checkIfCardValid(currentUID)) {
-        lcd.clear();
-        lcd.print("CARD IS");
-        lcd.setCursor(0, 1);
-        lcd.print("NOT VALID");
-        buzz(300);
-        delay(2000);
-        updateDisplay();
-        return;
-      }
-
       if (checkIfCandidate(currentUID)) {
         lcd.clear();
         lcd.print("CANDIDATES CAN'T");
@@ -308,27 +296,40 @@ void loop() {
         updateDisplay();
         return;
       }
+      if (!checkIfCardValid(currentUID) && !checkIfCandidate(currentUID)) {
+        lcd.clear();
+        lcd.print("CARD IS");
+        lcd.setCursor(0, 1);
+        lcd.print("NOT VALID");
+        buzz(300);
+        delay(2000);
+        updateDisplay();
+        return;
+      }
+
+      // Reset previous choice
+      enteredNumber = "";
+      selectedVote = '\0';
 
       lcd.clear();
-      lcd.print("VOTE FOR:");
-      lcd.setCursor(0, 1);
-      lcd.print("1:A 2:B 3:C 4:D");
+      if (voteType == "election") {
+        lcd.print("Enter cand. ID");
+        lcd.setCursor(0, 1);
+        lcd.print("(1-" + String(candidateCount) + ") then #");
+      } else if (voteType == "question") {
+        lcd.print("A:Agree");
+        lcd.setCursor(0, 1);
+        lcd.print("B:Dis C:Neu");
+      }
 
       votingInProgress = true;
       voteStartTimeout = millis();
-      selectedVote = '\0';
-      voteConfirmed = false;
     } else {
-      // lcd.clear();
-      // lcd.print("Card: ");
-      // lcd.setCursor(0, 1);
-      // lcd.print(currentUID.substring(0, 16));
-      // delay(2000);
       updateDisplay();
     }
   }
 
-  // Handle voting input
+  // Voting input
   if (votingInProgress) {
     if (millis() - voteStartTimeout > 20000) {
       lcd.clear();
@@ -337,6 +338,11 @@ void loop() {
       lcd.print("Try again.");
       buzz(300);
       delay(2000);
+
+      // Reset choice
+      enteredNumber = "";
+      selectedVote = '\0';
+
       votingInProgress = false;
       updateDisplay();
       return;
@@ -344,26 +350,71 @@ void loop() {
 
     if (Serial2.available()) {
       char key = Serial2.read();
-      if (key >= '1' && key <= '4') {
-        selectedVote = key;
-        lcd.clear();
-        lcd.print("Vote: ");
-        lcd.print(selectedVote);
-        lcd.setCursor(0, 1);
-        lcd.print("#:Yes *:No");
-      } else if (key == '#' && selectedVote) {
-        handleVote(selectedVote);
-        voteConfirmed = true;
-        votingInProgress = false;
-        updateDisplay();
+      key = toupper(key);
+
+      if (voteType == "election") {
+        if (key >= '0' && key <= '9') {
+          enteredNumber += key;
+          lcd.clear();
+          lcd.print("Vote: ");
+          lcd.print(enteredNumber);
+          lcd.setCursor(0, 1);
+          lcd.print("#:Yes *:No");
+        }
+      } else if (voteType == "question") {
+        if (key == 'A' || key == 'B' || key == 'C') {
+          selectedVote = key;
+          lcd.clear();
+          lcd.print("Choice: ");
+          if (key == 'A') lcd.print("Agree");
+          if (key == 'B') lcd.print("Disagree");
+          if (key == 'C') lcd.print("Neutral");
+          lcd.setCursor(0, 1);
+          lcd.print("#:Yes *:No");
+        }
+      }
+
+      if (key == '#') {
+        if (voteType == "election" && enteredNumber.length() > 0) {
+          int candidateIndex = enteredNumber.toInt();
+          // Validate candidate index range
+          if (candidateIndex >= 1 && candidateIndex <= candidateCount) {
+            handleVoteElection(enteredNumber); // Pass the index as string
+            votingInProgress = false;
+            updateDisplay();
+          } else {
+            lcd.clear();
+            lcd.print("Invalid choice!");
+            lcd.setCursor(0, 1);
+            lcd.print("(1-" + String(candidateCount) + ") only");
+            buzz(300);
+            delay(2000);
+            // Reset and show prompt again
+            enteredNumber = "";
+            lcd.clear();
+            lcd.print("Enter cand. ID");
+            lcd.setCursor(0, 1);
+            lcd.print("(1-" + String(candidateCount) + ") then #");
+          }
+        } else if (voteType == "question" && selectedVote) {
+          handleVoteQuestion(selectedVote);
+          votingInProgress = false;
+          updateDisplay();
+        }
       } else if (key == '*') {
+        enteredNumber = "";
         selectedVote = '\0';
         lcd.clear();
-        lcd.print("VOTE FOR:");
-        lcd.setCursor(0, 1);
-        lcd.print("1:A 2:B 3:C 4:D");
+        if (voteType == "election") {
+          lcd.print("Enter cand. ID");
+          lcd.setCursor(0, 1);
+          lcd.print("(1-" + String(candidateCount) + ") then #");
+        } else if (voteType == "question") {
+          lcd.print("A:Agree");
+          lcd.setCursor(0, 1);
+          lcd.print("B:Dis C:Neu");
+        }
       }
     }
   }
 }
-

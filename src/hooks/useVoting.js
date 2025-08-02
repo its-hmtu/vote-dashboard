@@ -153,7 +153,7 @@ export function useVotingSession(users) {
       currentSessionId,
       (votes) => {
         setSessionVoteCount(Object.keys(votes).length);
-        setCandidateVotes(calculateCandidateVotes(votes));
+        setCandidateVotes(calculateCandidateVotes(votes, sessionCandidates));
         
         // Calculate not voted users (only for election type)
         const notVotedUsers = getNotVotedUsers(users, sessionCandidates, votes);
@@ -256,18 +256,22 @@ export function useSessionDetails() {
   useEffect(() => {
     if (!openSessionDetail || !selectedSession) return;
 
+    let currentCandidates = [];
+
     const unsubscribeSession = FirebaseService.listenToSessionData(
       selectedSession,
       (session) => {
         setDetailSession(session);
-        setDetailCandidates(Object.keys(session.candidates || {}));
+        currentCandidates = Object.keys(session.candidates || {});
+        setDetailCandidates(currentCandidates);
       }
     );
 
     const unsubscribeVotes = FirebaseService.listenToSessionVotes(
       selectedSession,
       (votes) => {
-        setDetailCandidateVotes(calculateCandidateVotes(votes));
+        // Use the locally stored candidates array to avoid stale closure
+        setDetailCandidateVotes(calculateCandidateVotes(votes, currentCandidates));
       }
     );
 

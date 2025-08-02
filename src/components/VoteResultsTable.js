@@ -21,6 +21,7 @@ function VoteResultsTable({
   size = "small",
   showChoiceLetter = true,
   showChart = true,
+  showTable = true,
 }) {
   const tableData = candidates.map((uid) => ({
     key: uid,
@@ -86,15 +87,17 @@ function VoteResultsTable({
           </BarChart>
         </ResponsiveContainer>
       )}
-      <Table
-        dataSource={tableData}
-        columns={columns}
-        pagination={false}
-        size={size}
-        title={() => title}
-        showSorterTooltip={false}
-        scroll={{y: 300, x: true}}
-      />
+      {showTable && (
+        <Table
+          dataSource={tableData}
+          columns={columns}
+          pagination={false}
+          size={size}
+          title={() => title}
+          showSorterTooltip={false}
+          scroll={{y: 300, x: true}}
+        />
+      )}
     </div>
   );
 }

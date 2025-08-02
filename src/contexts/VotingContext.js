@@ -169,7 +169,7 @@ export const VotingProvider = ({ children }) => {
       currentSessionId,
       (votes) => {
         setSessionVoteCount(Object.keys(votes).length);
-        setCandidateVotes(calculateCandidateVotes(votes));
+        setCandidateVotes(calculateCandidateVotes(votes, sessionCandidatesRef.current));
         
         // Calculate not voted users (only for election type)
         // Use refs to get current values without triggering re-renders

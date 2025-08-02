@@ -14,18 +14,22 @@ import {
   Timeline,
   Empty,
   Tag,
+  Progress,
   Alert,
+  Tooltip,
 } from "antd";
 import {
   TrophyOutlined,
   CheckCircleOutlined,
   PauseCircleOutlined,
   HistoryOutlined,
+  BarChartOutlined,
   TeamOutlined,
   ArrowUpOutlined,
   ArrowDownOutlined,
   ClockCircleOutlined,
   UserOutlined,
+  LineChartOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
 import CurrentSessionDashboard from "./CurrentSessionDashboard";
@@ -34,6 +38,7 @@ import SessionControl from "./SessionControl";
 import { useVotingContext } from "../../contexts/VotingContext";
 import { useSessions } from "../../hooks/useVoting";
 import { useVoteActivity } from "../../hooks/useVoteActivity";
+import { calculateSessionResults } from "../../utils/formatters";
 
 const { Title } = Typography;
 
@@ -89,32 +94,13 @@ function Dashboard() {
     let lowParticipationSessions = 0;
 
     if (sessionsWithResults.length > 0) {
-      let totalParticipationRate = 0;
-      let validSessionCount = 0;
-
       const participationRates = sessionsWithResults.map(session => {
-        // Calculate participation rate properly based on actual session data
-        const voteCount = session.voteCount || 0;
-        const eligibleUsers = session.voteType === 'election' 
-          ? totalUsers - (Object.keys(session.candidates || {}).length) // Exclude candidates
-          : totalUsers;
-        
-        const participationRate = eligibleUsers > 0 
-          ? Math.round((voteCount / eligibleUsers) * 100)
-          : 0;
-
-        if (participationRate < 50) lowParticipationSessions++;
-        if (participationRate > 0) {
-          totalParticipationRate += participationRate;
-          validSessionCount++;
-        }
-        
-        return participationRate;
+        const results = calculateSessionResults(session, {}, users);
+        if (results.participationRate < 50) lowParticipationSessions++;
+        return results.participationRate;
       });
 
-      avgParticipationRate = validSessionCount > 0 
-        ? Math.round(totalParticipationRate / validSessionCount)
-        : 0;
+      avgParticipationRate = participationRates.reduce((sum, rate) => sum + rate, 0) / participationRates.length;
 
       // Calculate trend (last 3 vs previous 3 sessions)
       if (participationRates.length >= 3) {
@@ -131,25 +117,17 @@ function Dashboard() {
       }
     }
 
-    // Session trend (this week vs last week) - Fix date parsing
+    // Session trend (this week vs last week)
     const now = moment();
-    const thisWeekSessions = sessions.filter(s => {
-      // Handle both Unix timestamps and date strings
-      const sessionDate = typeof s.start_time === 'number' 
-        ? moment.unix(s.start_time)
-        : moment(s.startTime);
-      return sessionDate.isAfter(now.clone().startOf('week'));
-    }).length;
-    
-    const lastWeekSessions = sessions.filter(s => {
-      const sessionDate = typeof s.start_time === 'number' 
-        ? moment.unix(s.start_time)
-        : moment(s.startTime);
-      return sessionDate.isBetween(
+    const thisWeekSessions = sessions.filter(s => 
+      moment(s.startTime).isAfter(now.clone().startOf('week'))
+    ).length;
+    const lastWeekSessions = sessions.filter(s => 
+      moment(s.startTime).isBetween(
         now.clone().subtract(1, 'week').startOf('week'),
         now.clone().startOf('week')
-      );
-    }).length;
+      )
+    ).length;
 
     const sessionTrend = {
       direction: thisWeekSessions > lastWeekSessions ? 'up' : thisWeekSessions < lastWeekSessions ? 'down' : 'stable',
@@ -157,13 +135,10 @@ function Dashboard() {
       isSignificant: Math.abs(thisWeekSessions - lastWeekSessions) > 0
     };
 
-    // Today's sessions - Fix date parsing
-    const todaySessions = sessions.filter(s => {
-      const sessionDate = typeof s.start_time === 'number' 
-        ? moment.unix(s.start_time)
-        : moment(s.startTime);
-      return sessionDate.isSame(now, 'day');
-    }).length;
+    // Today's sessions
+    const todaySessions = sessions.filter(s => 
+      moment(s.startTime).isSame(now, 'day')
+    ).length;
 
     // Recent sessions (last 5)
     const recentSessions = sessions
@@ -178,7 +153,7 @@ function Dashboard() {
       completedSessions,
       activeSessions,
       totalUsers,
-      avgParticipationRate,
+      avgParticipationRate: Math.round(avgParticipationRate),
       participationTrend,
       sessionTrend,
       recentSessions,
@@ -417,6 +392,51 @@ function Dashboard() {
                             </span>
                           )}
                         </div>
+                      </div>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+            {dashboardAnalytics.recentSessions.length === 0 && (
+              <Empty 
+                description="No sessions yet" 
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                style={{ margin: '20px 0' }}
+              />
+            )}
+          </Card>
+        </Col>
+      </Row>
+              renderItem={(session) => (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={
+                      <Avatar
+                        icon={<TrophyOutlined />}
+                        style={{
+                          backgroundColor:
+                            session.status === "active" ? "#52c41a" : "#1890ff",
+                        }}
+                      />
+                    }
+                    title={
+                      <Space>
+                        <span>
+                          Session{" "}
+                          {session.sessionId?.split("session_")[1] || "Unknown"}
+                        </span>
+                        <Tag
+                          color={session.status === "active" ? "green" : "blue"}
+                        >
+                          {session.status || "completed"}
+                        </Tag>
+                      </Space>
+                    }
+                    description={
+                      <div>
+                        <div>Started: {session.startTime || "Unknown"}</div>
+                        <div>Votes: {session.voteCount || 0}</div>
                       </div>
                     }
                   />

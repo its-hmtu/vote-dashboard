@@ -41,9 +41,7 @@ function SessionControl({
             icon={<PlayCircleOutlined />}
             onClick={handleOpenModal}
             disabled={users.length < 2}
-          >
-            Start Session
-          </Button>
+          />
         ) : null
       ) : (
         // Full control panel mode
@@ -58,9 +56,8 @@ function SessionControl({
                     onClick={handleOpenModal}
                     size="large"
                     disabled={users.length < 2}
-                  >
-                    Start Voting Session
-                  </Button>
+                  />
+                
                   {users.length < 2 && (
                     <Text type="secondary">
                       You need at least 2 users to start a voting session

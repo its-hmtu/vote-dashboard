@@ -34,12 +34,26 @@ export const FirebaseService = {
         Object.entries(data).map(async ([sessionId, session]) => {
           const votesSnap = await get(ref(db, `${FIREBASE_PATHS.VOTES}/${sessionId}`));
           const votes = votesSnap.val() || {};
+          
+          // Handle both Unix timestamps and date strings for start_time
+          let startTime;
+          if (session.start_time) {
+            // If it's a number (Unix timestamp), convert it
+            if (typeof session.start_time === 'number') {
+              startTime = moment.unix(session.start_time).format("YYYY-MM-DD HH:mm:ss");
+            } else {
+              // If it's already a string, use it as is
+              startTime = session.start_time;
+            }
+          } else {
+            // Fallback to current time if no start_time
+            startTime = moment().format("YYYY-MM-DD HH:mm:ss");
+          }
+          
           return {
             sessionId,
             ...session,
-            startTime: moment
-              .unix(session.start_time)
-              .format("YYYY-MM-DD HH:mm:ss"),
+            startTime,
             voteCount: Object.keys(votes).length,
           };
         })
@@ -162,8 +176,10 @@ export const FirebaseService = {
 
     await set(ref(db, `${FIREBASE_PATHS.SESSIONS}/${sessionId}`), sessionData);
 
+    // Update ESP32 configuration
     await set(ref(db, FIREBASE_PATHS.CONFIG), {
       current_session: sessionId,
+      vote_type: voteType, // Set vote type for ESP32
     });
 
     await set(ref(db, FIREBASE_PATHS.VOTE_MODE), 1);
@@ -182,7 +198,11 @@ export const FirebaseService = {
       ref(db, `${FIREBASE_PATHS.SESSIONS}/${sessionId}/end_time_unix`),
       Math.floor(Date.now() / 1000)
     );
-    await set(ref(db, FIREBASE_PATHS.CONFIG), { current_session: null });
+    // Clear ESP32 configuration
+    await set(ref(db, FIREBASE_PATHS.CONFIG), { 
+      current_session: null,
+      vote_type: null,
+    });
     await set(ref(db, FIREBASE_PATHS.VOTE_MODE), 0);
   },
 
@@ -199,6 +219,33 @@ export const FirebaseService = {
    */
   async setCreateMode(active) {
     await set(ref(db, FIREBASE_PATHS.CREATE_MODE), active ? 1 : 0);
+  },
+
+  /**
+   * Get session votes (one-time fetch)
+   */
+  async getSessionVotes(sessionId) {
+    const votesRef = ref(db, `${FIREBASE_PATHS.VOTES}/${sessionId}`);
+    const snapshot = await get(votesRef);
+    return snapshot.val() || {};
+  },
+
+  /**
+   * Get all votes for multiple sessions
+   */
+  async getAllSessionVotes(sessionIds) {
+    const votesData = {};
+    
+    for (const sessionId of sessionIds) {
+      try {
+        votesData[sessionId] = await this.getSessionVotes(sessionId);
+      } catch (error) {
+        console.error(`Error fetching votes for session ${sessionId}:`, error);
+        votesData[sessionId] = {};
+      }
+    }
+    
+    return votesData;
   },
 
   /**

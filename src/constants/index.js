@@ -13,25 +13,37 @@ export const SESSION_CONFIG = {
   MIN_DURATION: 1, // minutes
   MAX_DURATION: 120, // minutes
   MIN_CANDIDATES: 2,
-  MAX_CANDIDATES: 4,
+  MAX_CANDIDATES: null, // Unlimited, but cannot exceed available users
   MIN_QUESTIONS: 1,
   MAX_QUESTIONS: 10,
   TYPES: {
     [VOTE_TYPES.ELECTION]: {
       MIN_CANDIDATES: 2,
-      MAX_CANDIDATES: 4,
-      CHOICES: ['A', 'B', 'C', 'D'], // Candidate choices
+      MAX_CANDIDATES: null, // Unlimited, but cannot exceed available users
+      CHOICES: null, // Dynamic based on number of candidates (1, 2, 3, ...)
     },
     [VOTE_TYPES.QUESTION]: {
       MIN_QUESTIONS: 1,
       MAX_QUESTIONS: 10,
-      CHOICES: ['YES', 'NO'], // Yes/No questions
+      CHOICES: ['A', 'B', 'C'], // A: Agree, B: Disagree, C: Neutral
     },
   },
 };
 
-// Vote choices
-export const VOTE_CHOICES = ['A', 'B', 'C', 'D'];
+// Vote choices - Dynamic function to generate choices based on candidate count
+export const generateVoteChoices = (candidateCount) => {
+  return Array.from({ length: candidateCount }, (_, i) => (i + 1).toString());
+};
+
+// Legacy vote choices for backward compatibility
+export const VOTE_CHOICES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']; // Extended for more candidates
+
+// Question choices
+export const QUESTION_CHOICES = {
+  A: 'AGREE',
+  B: 'DISAGREE', 
+  C: 'NEUTRAL'
+};
 
 // Firebase paths
 export const FIREBASE_PATHS = {

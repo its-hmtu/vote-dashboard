@@ -4,6 +4,7 @@ import { PATH } from "./constants/PATH";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AppLayout } from "./components";
 import {
+  Analytics,
   Dashboard,
   Sessions,
   Settings,
@@ -30,6 +31,16 @@ function App() {
                 <ProtectedRoute>
                   <AppLayout>
                     <Dashboard />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={PATH.ANALYTICS}
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Analytics />
                   </AppLayout>
                 </ProtectedRoute>
               }

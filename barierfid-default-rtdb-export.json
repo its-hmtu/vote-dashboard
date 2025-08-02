@@ -1,0 +1,124 @@
+{
+  "mode": {
+    "create": 0,
+    "vote": 0
+  },
+  "sessions": {
+    "session_1754150904722": {
+      "candidates": {
+        "34691605": true,
+        "043BDCFD730000": true,
+        "06B29F9F": true
+      },
+      "duration": 120,
+      "end_time": "2025-08-02T23:10:29+07:00",
+      "end_time_unix": 1754151029,
+      "notVotedUsers": [
+        "25087ABE",
+        "25C76EBE",
+        "26F43F9F",
+        "35AC6FF2",
+        "4566C4BE",
+        "582C4CD2",
+        "656220BE",
+        "65BEDDF1",
+        "B8ED71D1",
+        "E6577E9F"
+      ],
+      "start_time": 1754150904,
+      "status": "stopped",
+      "voteType": "election"
+    }
+  },
+  "users": {
+    "34691605": {
+      "createdAt": "2025-06-19T01:43:59+07:00",
+      "name": "User 11"
+    },
+    "043BDCFD730000": {
+      "createdAt": "2025-06-19T01:44:35+07:00",
+      "name": "User 12"
+    },
+    "06B29F9F": {
+      "createdAt": "2025-06-19T01:35:01+07:00",
+      "name": "User 9"
+    },
+    "25087ABE": {
+      "createdAt": "2025-06-19T01:34:22+07:00",
+      "name": "User 8"
+    },
+    "25C76EBE": {
+      "createdAt": "2025-06-19T01:33:22+07:00",
+      "name": "User 7"
+    },
+    "26F43F9F": {
+      "createdAt": "2025-06-19T01:27:16+07:00",
+      "name": "User 2"
+    },
+    "35AC6FF2": {
+      "createdAt": "2025-06-19T03:29:22+07:00",
+      "name": "Hoàng Minh Tú"
+    },
+    "4566C4BE": {
+      "createdAt": "2025-06-19T01:32:22+07:00",
+      "name": "User 6"
+    },
+    "582C4CD2": {
+      "createdAt": " 2025-06-19T01:25:56+07:00",
+      "name": "User 1"
+    },
+    "656220BE": {
+      "createdAt": "2025-06-19T01:30:22+07:00",
+      "name": "User 5"
+    },
+    "65BEDDF1": {
+      "createdAt": "2025-06-19T09:58:26+07:00",
+      "name": "Duong Dai So",
+      "updatedAt": "2025-07-31T21:41:13+07:00"
+    },
+    "B8ED71D1": {
+      "createdAt": "2025-06-19T01:29:20+07:00",
+      "name": "User 3"
+    },
+    "E6577E9F": {
+      "createdAt": "2025-06-19T08:52:37+07:00",
+      "name": "User 10"
+    }
+  },
+  "votes": {
+    "session_1754150904722": {
+      "25087ABE": {
+        "candidate_uid": "2",
+        "timestamp": 1754176151
+      },
+      "25C76EBE": {
+        "candidate_uid": "1",
+        "timestamp": 1754176199
+      },
+      "26F43F9F": {
+        "candidate_uid": "3",
+        "timestamp": 1754176184
+      },
+      "4566C4BE": {
+        "candidate_uid": "1",
+        "timestamp": 1754176130
+      },
+      "582C4CD2": {
+        "candidate_uid": "3",
+        "timestamp": 1754176207
+      },
+      "656220BE": {
+        "candidate_uid": "2",
+        "timestamp": 1754176176
+      },
+      "B8ED71D1": {
+        "candidate_uid": "2",
+        "timestamp": 1754176142
+      },
+      "E6577E9F": {
+        "candidate_uid": "3",
+        "timestamp": 1754176169
+      }
+    }
+  }
+}
