@@ -217,52 +217,153 @@ function SessionDetailsModal({
         <div>
           <Title level={5}>Question Results</Title>
           {detailSession.questions?.[0]?.text && (
-            <Card size="small" style={{ marginBottom: 16 }}>
-              <Text strong>Question:</Text>
-              <div style={{ marginTop: 8 }}>
+            <Card size="small" style={{ marginBottom: 16, background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)' }}>
+              <Text strong style={{ color: '#1976d2' }}>Question:</Text>
+              <div style={{ marginTop: 8, fontSize: '14px', fontWeight: 500 }}>
                 {detailSession.questions[0].text}
               </div>
             </Card>
           )}
-          <Card size="small">
-            <Row gutter={16}>
+          <Card size="small" style={{ background: '#fafafa', border: '1px solid #e8e8e8' }}>
+            <Row gutter={[24, 16]}>
               <Col span={8}>
-                <Statistic 
-                  title="Agree" 
-                  value={results.questionResults?.yes || 0} 
-                  suffix="votes"
-                  valueStyle={{ color: "#52c41a" }}
-                />
+                <div className="vote-result-card" style={{ 
+                  background: 'linear-gradient(135deg, #f6ffed, #d9f7be)', 
+                  padding: '16px', 
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  border: '1px solid #b7eb8f'
+                }}>
+                  <div className="vote-count-number" style={{ fontSize: '24px', fontWeight: 'bold', color: '#52c41a', marginBottom: '4px' }}>
+                    {results.questionResults?.yes || 0}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '8px' }}>
+                    votes
+                  </div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#52c41a', marginBottom: '4px' }}>
+                    Agree
+                  </div>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: 'bold',
+                    color: '#52c41a',
+                    background: '#f6ffed',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    border: '1px solid #d9f7be'
+                  }}>
+                    {totalVotes > 0 ? Math.round(((results.questionResults?.yes || 0) / totalVotes) * 100) : 0}%
+                  </div>
+                </div>
               </Col>
               <Col span={8}>
-                <Statistic 
-                  title="Disagree" 
-                  value={results.questionResults?.no || 0} 
-                  suffix="votes"
-                  valueStyle={{ color: "#ff4d4f" }}
-                />
+                <div className="vote-result-card" style={{ 
+                  background: 'linear-gradient(135deg, #fff2e8, #ffd8bf)', 
+                  padding: '16px', 
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  border: '1px solid #ffbb96'
+                }}>
+                  <div className="vote-count-number" style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff4d4f', marginBottom: '4px' }}>
+                    {results.questionResults?.no || 0}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '8px' }}>
+                    votes
+                  </div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#ff4d4f', marginBottom: '4px' }}>
+                    Disagree
+                  </div>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: 'bold',
+                    color: '#ff4d4f',
+                    background: '#fff2e8',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    border: '1px solid #ffd8bf'
+                  }}>
+                    {totalVotes > 0 ? Math.round(((results.questionResults?.no || 0) / totalVotes) * 100) : 0}%
+                  </div>
+                </div>
               </Col>
               <Col span={8}>
-                <Statistic 
-                  title="Neutral" 
-                  value={results.questionResults?.neutral || 0} 
-                  suffix="votes"
-                  valueStyle={{ color: "#faad14" }}
-                />
+                <div className="vote-result-card" style={{ 
+                  background: 'linear-gradient(135deg, #fffbf0, #fff1b8)', 
+                  padding: '16px', 
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  border: '1px solid #ffe58f'
+                }}>
+                  <div className="vote-count-number" style={{ fontSize: '24px', fontWeight: 'bold', color: '#faad14', marginBottom: '4px' }}>
+                    {results.questionResults?.neutral || 0}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '8px' }}>
+                    votes
+                  </div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, color: '#faad14', marginBottom: '4px' }}>
+                    Neutral
+                  </div>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: 'bold',
+                    color: '#faad14',
+                    background: '#fffbf0',
+                    padding: '4px 8px',
+                    borderRadius: '12px',
+                    border: '1px solid #fff1b8'
+                  }}>
+                    {totalVotes > 0 ? Math.round(((results.questionResults?.neutral || 0) / totalVotes) * 100) : 0}%
+                  </div>
+                </div>
               </Col>
             </Row>
-            {results.majority && (
-              <div style={{ marginTop: 16, textAlign: 'center' }}>
-                <Text strong>
-                  Majority: <span style={{ 
+
+            {/* Enhanced Results Summary */}
+            <div style={{ marginTop: 20 }}>
+              {/* Primary Results */}
+              {results.majority && results.majority !== 'tie' && (
+                <div className="majority-result" style={{ 
+                  textAlign: 'center',
+                  background: 'linear-gradient(135deg, #e6f7ff, #bae7ff)',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  border: '2px solid #91d5ff',
+                  marginBottom: '16px',
+                  boxShadow: '0 4px 12px rgba(24, 144, 255, 0.15)'
+                }}>
+                  <div style={{ marginBottom: '8px' }}>
+                    <Text strong style={{ fontSize: '18px', color: '#1976d2' }}>
+                      Majority Choice
+                    </Text>
+                  </div>
+                  <div style={{ 
+                    fontSize: '24px',
+                    fontWeight: 'bold',
                     color: results.majority === 'yes' ? '#52c41a' : 
-                          results.majority === 'no' ? '#ff4d4f' : '#faad14' 
+                          results.majority === 'no' ? '#ff4d4f' : '#faad14',
+                    marginBottom: '4px'
                   }}>
-                    {results.majority.toUpperCase()}
-                  </span> ({results.majorityPercentage}%)
-                </Text>
-              </div>
-            )}
+                    {results.majority === 'yes' ? '✓ AGREE' : 
+                     results.majority === 'no' ? '✗ DISAGREE' : 
+                     results.majority === 'neutral' ? '⚪ NEUTRAL' : results.majority.toUpperCase()}
+                  </div>
+                  <div className="percentage-badge" style={{ 
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#1976d2',
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    display: 'inline-block',
+                    marginTop: '8px'
+                  }}>
+                    {results.majorityPercentage}%
+                  </div>
+                </div>
+              )}
+
+
+            </div>
           </Card>
         </div>
       ) : (

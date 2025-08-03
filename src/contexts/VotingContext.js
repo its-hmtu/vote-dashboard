@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
-import { message } from "antd";
+import { toast } from "react-toastify";
 import { FirebaseService } from "../services/firebaseService";
 import { getNotVotedUsers, calculateCandidateVotes } from "../utils/formatters";
 import { MESSAGES, VOTE_TYPES } from "../constants";
@@ -51,27 +51,27 @@ export const VotingProvider = ({ children }) => {
   const addUser = async (uid, name) => {
     try {
       await FirebaseService.createUser(uid, name);
-      message.success(MESSAGES.SUCCESS.USER_ADDED);
+      toast.success(MESSAGES.SUCCESS.USER_ADDED);
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.USER_ADD_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.USER_ADD_FAILED}: ${error.message}`);
     }
   };
 
   const removeUser = async (uid, name) => {
     try {
       await FirebaseService.removeUser(uid);
-      message.success(MESSAGES.SUCCESS.USER_REMOVED);
+      toast.success(MESSAGES.SUCCESS.USER_REMOVED);
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.USER_REMOVE_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.USER_REMOVE_FAILED}: ${error.message}`);
     }
   };
 
   const updateUser = async (uid, name) => {
     try {
       await FirebaseService.updateUser(uid, name);
-      message.success(MESSAGES.SUCCESS.USER_UPDATED);
+      toast.success(MESSAGES.SUCCESS.USER_UPDATED);
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.USER_UPDATE_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.USER_UPDATE_FAILED}: ${error.message}`);
     }
   }
 
@@ -109,9 +109,9 @@ export const VotingProvider = ({ children }) => {
       setSessionTimeLeft(0);
       setCurrentSessionId(null);
       setCurrentSessionType(null);
-      message.success(MESSAGES.SUCCESS.SESSION_STOPPED);
+      toast.success(MESSAGES.SUCCESS.SESSION_STOPPED);
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.SESSION_STOP_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.SESSION_STOP_FAILED}: ${error.message}`);
     }
   }, [votingActive, currentSessionId]);
 
@@ -197,12 +197,12 @@ export const VotingProvider = ({ children }) => {
 
     // Validate based on vote type
     if (voteType === VOTE_TYPES.ELECTION && (!candidates || candidates.length < 2)) {
-      message.error(MESSAGES.ERROR.MIN_CANDIDATES);
+      toast.error(MESSAGES.ERROR.MIN_CANDIDATES);
       return false;
     }
 
     if (voteType === VOTE_TYPES.QUESTION && (!questions || questions.length < 1)) {
-      message.error("At least one question is required");
+      toast.error("At least one question is required");
       return false;
     }
 
@@ -214,10 +214,10 @@ export const VotingProvider = ({ children }) => {
       setCurrentSessionType(voteType);
       
       const typeText = voteType === VOTE_TYPES.ELECTION ? "election" : "question";
-      message.success(`${MESSAGES.SUCCESS.SESSION_STARTED} (${typeText}) for ${duration} minutes`);
+      toast.success(`${MESSAGES.SUCCESS.SESSION_STARTED} (${typeText}) for ${duration} minutes`);
       return true;
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.SESSION_START_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.SESSION_START_FAILED}: ${error.message}`);
       return false;
     }
   };

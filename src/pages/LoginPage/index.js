@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Card, message, Alert } from "antd";
+import { Form, Input, Button, Card, Alert } from "antd";
+import { toast } from "react-toastify";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { auth, signInWithEmailAndPassword, onAuthStateChanged } from "../../firebase";
 import { PATH } from "../../constants/PATH"
@@ -30,7 +31,7 @@ const LoginPage = () => {
     
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
-      message.success("Login successful!");
+      toast.success("Login successful!");
       navigate(PATH.DASHBOARD);
     } catch (error) {
       let errorMessage = "Login failed. Please try again.";
@@ -72,7 +73,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5] px-4">
       <Card 
-        className={`w-full max-w-md shadow-lg animate-fadeIn transition-all duration-300 ${error ? 'shadow-red-200 border-red-200' : 'hover:shadow-xl'}`}
+        className={`w-full max-w-md shadow-lg animate-fadeIn transition-all duration-300 ${error ? 'shadow-red-200 border-red-200' : ''}`}
         title={
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
@@ -152,7 +153,7 @@ const LoginPage = () => {
             <Button
               type="primary"
               htmlType="submit"
-              className={`w-full transition-all duration-200 ${loading ? 'transform scale-95' : 'hover:transform hover:scale-105'}`}
+              className={`w-full transition-all duration-200 ${loading ? 'transform scale-95' : ''}`}
               loading={loading}
               disabled={loading}
             >

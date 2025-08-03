@@ -234,6 +234,8 @@ function Dashboard() {
   return (
     <div>
       {/* Header */}
+       {/* Current Session Dashboard */}
+      
       <Row
         justify="space-between"
         align="middle"
@@ -300,6 +302,19 @@ function Dashboard() {
           style={{ marginBottom: 24 }}
         />
       )}
+      {votingActive && (
+        <CurrentSessionDashboard
+          votingActive={votingActive}
+          sessionTimeLeft={sessionTimeLeft}
+          sessionVoteCount={sessionVoteCount}
+          notVotedUserCount={notVotedUserCount}
+          sessionCandidates={sessionCandidates}
+          candidateVotes={candidateVotes}
+          users={users}
+          currentSessionId={currentSessionId}
+          currentSessionType={currentSessionType}
+        />
+      )}
 
       {/* Enhanced Analytics Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -344,20 +359,7 @@ function Dashboard() {
         </Col>
       </Row>
 
-      {/* Current Session Dashboard */}
-      {votingActive && (
-        <CurrentSessionDashboard
-          votingActive={votingActive}
-          sessionTimeLeft={sessionTimeLeft}
-          sessionVoteCount={sessionVoteCount}
-          notVotedUserCount={notVotedUserCount}
-          sessionCandidates={sessionCandidates}
-          candidateVotes={candidateVotes}
-          users={users}
-          currentSessionId={currentSessionId}
-          currentSessionType={currentSessionType}
-        />
-      )}
+     
 
       {/* Main Content Layout */}
       <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>

@@ -49,6 +49,121 @@ code {
   }
 }
 
+/* Vote Results Animations */
+@keyframes bounceIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Vote Result Cards */
+.vote-result-card {
+  animation: bounceIn 0.6s ease-out;
+}
+
+.vote-count-number {
+  animation: pulse 2s infinite;
+}
+
+/* Percentage badges */
+.percentage-badge {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Majority result animations */
+.majority-result {
+  animation: bounceIn 0.8s ease-out;
+}
+
+/* Live results animations */
+.live-breakdown {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.live-breakdown > * {
+  animation: slideInDown 0.5s ease-out;
+}
+
+/* Responsive vote displays */
+@media (max-width: 768px) {
+  .vote-result-card {
+    padding: 12px !important;
+  }
+  
+  .vote-count-number {
+    font-size: 20px !important;
+  }
+}
+
+/* Smooth animations for vote result cards */
+@keyframes cardGlow {
+  0% {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@keyframes countUp {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.vote-result-card {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.vote-count-number {
+  animation: countUp 0.5s ease-out;
+}
+
+.majority-card {
+  background: linear-gradient(135deg, #f6ffed 0%, #f0f9ff 100%);
+  border: 2px solid #52c41a;
+}
+
 /* Animation classes */
 .animate-slideInDown {
   animation: slideInDown 0.3s ease-out;
@@ -60,10 +175,4 @@ code {
 
 .animate-shake {
   animation: shake 0.5s ease-in-out;
-}
-
-/* Error alert hover effects */
-.error-alert:hover {
-  transform: scale(1.02);
-  transition: transform 0.2s ease-in-out;
 }

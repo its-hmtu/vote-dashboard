@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { message } from "antd";
+import { toast } from "react-toastify";
 import { FirebaseService } from "../services/firebaseService";
 import { getNotVotedUsers, calculateCandidateVotes } from "../utils/formatters";
 import { MESSAGES, VOTE_TYPES } from "../constants";
@@ -19,18 +19,18 @@ export function useUsers() {
   const addUser = async (uid, name) => {
     try {
       await FirebaseService.createUser(uid, name);
-      message.success(MESSAGES.SUCCESS.USER_ADDED);
+      toast.success(MESSAGES.SUCCESS.USER_ADDED);
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.USER_ADD_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.USER_ADD_FAILED}: ${error.message}`);
     }
   };
 
   const removeUser = async (uid, name) => {
     try {
       await FirebaseService.removeUser(uid);
-      message.success(MESSAGES.SUCCESS.USER_REMOVED);
+      toast.success(MESSAGES.SUCCESS.USER_REMOVED);
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.USER_REMOVE_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.USER_REMOVE_FAILED}: ${error.message}`);
     }
   };
 
@@ -51,9 +51,9 @@ export function useSessions() {
   const removeSession = async (sessionId) => {
     try {
       await FirebaseService.removeSession(sessionId);
-      message.success(MESSAGES.SUCCESS.SESSION_REMOVED);
+      toast.success(MESSAGES.SUCCESS.SESSION_REMOVED);
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.SESSION_REMOVE_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.SESSION_REMOVE_FAILED}: ${error.message}`);
     }
   };
 
@@ -106,9 +106,9 @@ export function useVotingSession(users) {
       setVotingActive(false);
       setSessionTimeLeft(0);
       setCurrentSessionId(null);
-      message.success(MESSAGES.SUCCESS.SESSION_STOPPED);
+      toast.success(MESSAGES.SUCCESS.SESSION_STOPPED);
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.SESSION_STOP_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.SESSION_STOP_FAILED}: ${error.message}`);
     }
   }, [votingActive, currentSessionId, users, sessionCandidates]);
 
@@ -173,12 +173,12 @@ export function useVotingSession(users) {
 
     // Validate based on vote type
     if (voteType === VOTE_TYPES.ELECTION && (!candidates || candidates.length < 2)) {
-      message.error(MESSAGES.ERROR.MIN_CANDIDATES);
+      toast.error(MESSAGES.ERROR.MIN_CANDIDATES);
       return false;
     }
 
     if (voteType === VOTE_TYPES.QUESTION && (!questions || questions.length < 1)) {
-      message.error("At least one question is required");
+      toast.error("At least one question is required");
       return false;
     }
 
@@ -189,10 +189,10 @@ export function useVotingSession(users) {
       setCurrentSessionId(result.sessionId);
       
       const typeText = voteType === VOTE_TYPES.ELECTION ? "election" : "question";
-      message.success(`${MESSAGES.SUCCESS.SESSION_STARTED} (${typeText}) for ${duration} minutes`);
+      toast.success(`${MESSAGES.SUCCESS.SESSION_STARTED} (${typeText}) for ${duration} minutes`);
       return true;
     } catch (error) {
-      message.error(`${MESSAGES.ERROR.SESSION_START_FAILED}: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.SESSION_START_FAILED}: ${error.message}`);
       return false;
     }
   };
@@ -222,7 +222,7 @@ export function useCardScanning() {
     
     const unsubscribe = FirebaseService.listenForCard((result) => {
       if (result.error) {
-        message.error(result.error);
+        toast.error(result.error);
         setWaitingForCard(false);
         return;
       }

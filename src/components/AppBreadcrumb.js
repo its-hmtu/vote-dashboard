@@ -36,7 +36,7 @@ const AppBreadcrumb = () => {
       href,
       className: classNames(
         isClickable
-          ? "cursor-pointer hover:text-primary"
+          ? "cursor-pointer"
           : "pointer-events-none",
         isLast && "!text-black"
       ),

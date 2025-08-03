@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Card, Statistic, Row, Col, Typography, Tag, Empty, List, Avatar, Tooltip, Button } from "antd";
-import { 
-  EyeOutlined 
-} from "@ant-design/icons";
 import moment from "moment";
 import { formatSeconds, calculateSessionResults } from "../../utils";
 import VoteResultsTable from "../../components/VoteResultsTable";
@@ -54,7 +51,6 @@ function LatestSessionResults({ sessions, users }) {
   
   // Extract results for easier access
   const {
-    totalEligibleUsers,
     sessionVotes: totalVotes,
     notVotedUsers,
     participationRate,
@@ -138,50 +134,195 @@ function LatestSessionResults({ sessions, users }) {
       {latestSession.voteType === VOTE_TYPES.QUESTION && (
         <div>
           <Title level={5}>Question Results</Title>
-          <Card size="small" style={{ backgroundColor: '#fafafa' }}>
-            <Text strong>Question:</Text>
-            <div style={{ marginTop: 8, marginBottom: 16 }}>
+          <Card size="small" style={{ background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)', marginBottom: 16 }}>
+            <Text strong style={{ color: '#1976d2' }}>Question:</Text>
+            <div style={{ marginTop: 8, marginBottom: 16, fontSize: '14px', fontWeight: 500 }}>
               {latestSession.questions?.[0]?.text || latestSession.question_text || 'Question not available'}
             </div>
-            <Row gutter={16}>
-              <Col span={8}>
-                <Statistic 
-                  title="Yes" 
-                  value={questionResults?.yes || 0} 
-                  suffix="votes"
-                  valueStyle={{ color: "#52c41a" }}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic 
-                  title="No" 
-                  value={questionResults?.no || 0} 
-                  suffix="votes"
-                  valueStyle={{ color: "#ff4d4f" }}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic 
-                  title="Neutral" 
-                  value={questionResults?.neutral || 0} 
-                  suffix="votes"
-                  valueStyle={{ color: "#faad14" }}
-                />
-              </Col>
-            </Row>
-            {results.majority && (
-              <div style={{ marginTop: 16, textAlign: 'center' }}>
-                <Text strong>
-                  Majority: <span style={{ 
-                    color: results.majority === 'yes' ? '#52c41a' : 
-                          results.majority === 'no' ? '#ff4d4f' : '#faad14' 
-                  }}>
-                    {results.majority.toUpperCase()}
-                  </span> ({results.majorityPercentage}%)
-                </Text>
+          </Card>
+          
+          <Row gutter={[16, 16]}>
+            <Col span={8}>
+              <div className="vote-result-card" style={{ 
+                background: 'linear-gradient(135deg, #f6ffed, #d9f7be)', 
+                padding: '20px', 
+                borderRadius: '12px',
+                textAlign: 'center',
+                border: '2px solid #b7eb8f',
+                boxShadow: '0 4px 12px rgba(82, 196, 26, 0.15)'
+              }}>
+                <div className="vote-count-number" style={{ 
+                  fontSize: '32px', 
+                  fontWeight: 'bold', 
+                  color: '#52c41a', 
+                  marginBottom: '8px',
+                  textShadow: '0 2px 4px rgba(82, 196, 26, 0.2)'
+                }}>
+                  {questionResults?.yes || 0}
+                </div>
+                <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '12px' }}>
+                  votes
+                </div>
+                <div style={{ 
+                  fontSize: '18px', 
+                  fontWeight: 'bold', 
+                  color: '#52c41a', 
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}>
+                  ✓ Agree
+                </div>
+                <div style={{ 
+                  fontSize: '16px', 
+                  fontWeight: 'bold',
+                  color: '#52c41a',
+                  background: '#f6ffed',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  border: '2px solid #d9f7be',
+                  display: 'inline-block'
+                }}>
+                  {totalVotes > 0 ? Math.round(((questionResults?.yes || 0) / totalVotes) * 100) : 0}%
+                </div>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div style={{ 
+                background: 'linear-gradient(135deg, #fff2e8, #ffd8bf)', 
+                padding: '20px', 
+                borderRadius: '12px',
+                textAlign: 'center',
+                border: '2px solid #ffbb96',
+                boxShadow: '0 4px 12px rgba(255, 77, 79, 0.15)'
+              }}>
+                <div style={{ 
+                  fontSize: '32px', 
+                  fontWeight: 'bold', 
+                  color: '#ff4d4f', 
+                  marginBottom: '8px',
+                  textShadow: '0 2px 4px rgba(255, 77, 79, 0.2)'
+                }}>
+                  {questionResults?.no || 0}
+                </div>
+                <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '12px' }}>
+                  votes
+                </div>
+                <div style={{ 
+                  fontSize: '18px', 
+                  fontWeight: 'bold', 
+                  color: '#ff4d4f', 
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}>
+                  ✗ Disagree
+                </div>
+                <div style={{ 
+                  fontSize: '16px', 
+                  fontWeight: 'bold',
+                  color: '#ff4d4f',
+                  background: '#fff2e8',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  border: '2px solid #ffd8bf',
+                  display: 'inline-block'
+                }}>
+                  {totalVotes > 0 ? Math.round(((questionResults?.no || 0) / totalVotes) * 100) : 0}%
+                </div>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div style={{ 
+                background: 'linear-gradient(135deg, #fffbf0, #fff1b8)', 
+                padding: '20px', 
+                borderRadius: '12px',
+                textAlign: 'center',
+                border: '2px solid #ffe58f',
+                boxShadow: '0 4px 12px rgba(250, 173, 20, 0.15)'
+              }}>
+                <div style={{ 
+                  fontSize: '32px', 
+                  fontWeight: 'bold', 
+                  color: '#faad14', 
+                  marginBottom: '8px',
+                  textShadow: '0 2px 4px rgba(250, 173, 20, 0.2)'
+                }}>
+                  {questionResults?.neutral || 0}
+                </div>
+                <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '12px' }}>
+                  votes
+                </div>
+                <div style={{ 
+                  fontSize: '18px', 
+                  fontWeight: 'bold', 
+                  color: '#faad14', 
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}>
+                  ⚪ Neutral
+                </div>
+                <div style={{ 
+                  fontSize: '16px', 
+                  fontWeight: 'bold',
+                  color: '#faad14',
+                  background: '#fffbf0',
+                  padding: '6px 12px',
+                  borderRadius: '20px',
+                  border: '2px solid #fff1b8',
+                  display: 'inline-block'
+                }}>
+                  {totalVotes > 0 ? Math.round(((questionResults?.neutral || 0) / totalVotes) * 100) : 0}%
+                </div>
+              </div>
+            </Col>
+          </Row>
+          
+          {/* Enhanced Results Summary */}
+          <div style={{ marginTop: 20 }}>
+            {/* Primary Results */}
+            {results.majority && results.majority !== 'tie' && (
+              <div className="majority-result" style={{ 
+                textAlign: 'center',
+                background: 'linear-gradient(135deg, #e6f7ff, #bae7ff)',
+                padding: '16px',
+                borderRadius: '12px',
+                border: '2px solid #91d5ff',
+                marginBottom: '16px',
+                boxShadow: '0 4px 12px rgba(24, 144, 255, 0.15)'
+              }}>
+                <div style={{ marginBottom: '8px' }}>
+                  <Text strong style={{ fontSize: '18px', color: '#1976d2' }}>
+                    Majority Choice
+                  </Text>
+                </div>
+                <div style={{ 
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: results.majority === 'yes' ? '#52c41a' : 
+                        results.majority === 'no' ? '#ff4d4f' : '#faad14',
+                  marginBottom: '4px'
+                }}>
+                  {results.majority === 'yes' ? '✓ AGREE' : 
+                   results.majority === 'no' ? '✗ DISAGREE' : 
+                   results.majority === 'neutral' ? '⚪ NEUTRAL' : results.majority.toUpperCase()}
+                </div>
+                <div className="percentage-badge" style={{ 
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  color: '#1976d2',
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  display: 'inline-block',
+                  marginTop: '8px'
+                }}>
+                  {results.majorityPercentage}%
+                </div>
               </div>
             )}
-          </Card>
+          </div>
         </div>
       )}
 
@@ -256,11 +397,11 @@ function LatestSessionResults({ sessions, users }) {
                         description={
                           <div>
                             <Text>Voted for: <Text strong>{voteDisplay}</Text></Text>
-                            {vote.timestamp && (
+                            {/* {vote.timestamp && (
                               <Text type="secondary" style={{ marginLeft: 16 }}>
                                 {moment.unix(vote.timestamp).format('MMM DD, HH:mm:ss')}
                               </Text>
-                            )}
+                            )} */}
                           </div>
                         }
                       />

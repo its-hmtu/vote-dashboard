@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Card, Row, Col, Alert, Table, Tag, Progress, Timeline, Button, Modal, Typography } from 'antd';
 import { TrophyOutlined, AlertOutlined, RocketOutlined, DownloadOutlined } from '@ant-design/icons';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
+import { toast } from 'react-toastify';
 import moment from 'moment';
 import { calculateUserEngagement, analyzeCandidatePerformance, generateSessionInsights, analyzeVotingPatterns, exportSessionData } from '../../utils/analytics';
 import { useSessions } from '../../hooks/useVoting';
@@ -68,16 +69,25 @@ function AdvancedAnalytics() {
   }, [sessions, users, sessionVotes]);
 
   const handleExportData = () => {
-    const csvData = exportSessionData(sessions || [], sessionVotes, users || []);
-    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `session-analytics-${moment().format('YYYY-MM-DD')}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const csvData = exportSessionData(sessions || [], sessionVotes, users || []);
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `session-analytics-${moment().format('YYYY-MM-DD')}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setExportModalVisible(false);
+      
+      // Add success toast
+      toast.success('Analytics data exported successfully!');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to export analytics data. Please try again.');
+    }
   };  const renderInsightsCard = () => (
     <Card title="Key Insights" style={{ marginBottom: 24 }}>
       <Timeline>

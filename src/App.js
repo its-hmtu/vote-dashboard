@@ -1,5 +1,7 @@
 import "antd/dist/reset.css";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { PATH } from "./constants/PATH";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AppLayout } from "./components";
@@ -65,7 +67,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* <Route
+            <Route
               path={PATH.SETTINGS}
               element={
                 <ProtectedRoute>
@@ -74,13 +76,25 @@ function App() {
                   </AppLayout>
                 </ProtectedRoute>
               }
-            /> */}
+            />
             <Route
               path="*"
               element={<Navigate to={PATH.DASHBOARD} replace />}
             />
           </Routes>
         </BrowserRouter>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </VotingProvider>
     </AuthProvider>
   );
