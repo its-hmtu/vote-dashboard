@@ -68,3 +68,48 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+```plantuml
+@startuml
+left to right direction
+skinparam backgroundColor #FFFFFF
+skinparam linetype polyline
+skinparam defaultFontName "Times New Roman"
+skinparam state {
+  BackgroundColor<<pending>> #FFF3CD
+  BorderColor<<pending>> #FFC107
+  BackgroundColor<<approved>> #D4EDDA
+  BorderColor<<approved>> #28A745
+  BackgroundColor<<rejected>> #F8D7DA
+  BorderColor<<rejected>> #DC3545
+  BackgroundColor<<deleted>> #E2E3E5
+  BorderColor<<deleted>> #6C757D
+  FontStyle bold
+}
+skinparam ArrowColor #000000
+skinparam ArrowFontSize 12
+
+state "Mới" as Moi <<pending>>
+state "Chờ ký duyệt" as ChoKyDuyet <<pending>>
+state "Đã ký duyệt" as DaKyDuyet <<approved>>
+state "Bị từ chối" as BiTuChoi <<rejected>>
+state "Đã xóa" as DaXoa <<deleted>>
+
+[*] --> Moi : Tạo mới (CN-01.03) /\nTạo lại (CN-01.09)
+Moi --> ChoKyDuyet : Trình ký (CN-01.06)
+ChoKyDuyet --> DaKyDuyet : Đủ chữ ký (CN-01.07)
+DaKyDuyet --> [*]
+
+ChoKyDuyet --> BiTuChoi : Có 1 người từ chối,\nkèm lý do (CN-01.07)
+BiTuChoi --> ChoKyDuyet : Trình ký lại (CN-01.06)
+BiTuChoi --> Moi : Sửa (CN-01.04)
+
+Moi --> DaKyDuyet : Xác nhận đã ký ngoài\nhệ thống (CN-01.08)
+BiTuChoi --> DaKyDuyet : Xác nhận đã ký ngoài\nhệ thống (CN-01.08)
+
+Moi --> DaXoa : Xóa (CN-01.05)
+BiTuChoi --> DaXoa : Xóa (CN-01.05)
+DaXoa --> [*]
+@enduml
+
+
